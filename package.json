@@ -18,9 +18,11 @@
     "type": "git",
     "url": "http://github.com/streamich/typebase"
   },
-  "main": "typebase.js",
+  "main": "index.js",
   "scripts": {
-    "docs": "docco --output ./docs --layout linear typebase.ts"
+    "docs": "rm -rf docs && docco --output ./docs --layout linear index.ts",
+    "build": "tsc index.ts",
+    "prepublish": "yarn build"
   },
   "devDependencies": {
     "@types/node": "^13.9.3"
