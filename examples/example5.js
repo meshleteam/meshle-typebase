@@ -1,6 +1,6 @@
-const { Struct, Bit, Bytes, b1, b3, Pointer, ui16 } = require("../typebase.js");
+const { Struct, Bit, Byte, b1, b3, Pointer, ui16 } = require("../index.js");
 
-const Status = Bytes.define(
+const Status = Byte.define(
   [
     ["powerOn", b1],
     ["timerEnabled", b1],

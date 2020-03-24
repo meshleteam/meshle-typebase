@@ -192,17 +192,18 @@ export class Primitive implements IType {
 
 // ### Bit
 
-// `Bit`s are the smallest, most basic data types like integers, chars and pointers on which CPU operates directly
-// and which know how to pack and unpack themselves into `Buffer`s.
+// A `Bit` is the smallest, most basic data type it can only be used inside `Bytes`
+// to represent from 1 up to 7 bits long integers
 export class Bit {
   /* We do not define `offset` at construction because the
        offset property is set by a parent Struct. */
   static define(size = 1) {
+    if (typeof size === "number" && (size > 7 || size < 1))
+      throw new Error("Bit size must be >= 1 and <= 7");
     var bit = new Bit();
     bit.size = size;
     return bit;
   }
-
   size = 0;
 }
 
@@ -325,21 +326,22 @@ export class Struct implements IType {
   }
 }
 
-// ### Bits
+// ### Byte
 
-// Each `Bit` inside a `Bits` gets decorated with the `IBitsField` object.
+// Each `Bit` inside a `Byte` gets decorated with the `IByteField` object.
 export class IByteField {
   type: Bit;
   offset: number;
   name: string;
 }
 
-export type IBitDefinition = [string, Bit] | Bytes;
+export type IBitDefinition = [string, Bit] | Byte;
 
-// Represents a byte(s) in memory record.
-export class Bytes implements IType {
-  static define(bits: IBitDefinition[], type: IType, name: string = ""): Bytes {
-    return new Bytes(bits, type, name);
+// Represents a byte or bytes in memory record
+// upto 8 bytes can be represented using `Byte`, this depends on the type passed to the define function
+export class Byte implements IType {
+  static define(bits: IBitDefinition[], type: IType, name: string = ""): Byte {
+    return new Byte(bits, type, name);
   }
 
   size = 0;

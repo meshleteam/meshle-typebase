@@ -187,19 +187,20 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
         
       
         
-        <p><code>Bit</code>s are the smallest, most basic data types like integers, chars and pointers on which CPU operates directly
-and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
+        <p>A <code>Bit</code> is the smallest, most basic data type it can only be used inside <code>Bytes</code>
+to represent from 1 up to 7 bits long integers</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Bit {
   <span class="hljs-comment">/* We do not define `offset` at construction because the
        offset property is set by a parent Struct. */</span>
   <span class="hljs-keyword">static</span> define(size = <span class="hljs-number">1</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> size === <span class="hljs-string">"number"</span> &amp;&amp; (size &gt; <span class="hljs-number">7</span> || size &lt; <span class="hljs-number">1</span>))
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"Bit size must be &gt;= 1 and &lt;= 7"</span>);
     <span class="hljs-keyword">var</span> bit = <span class="hljs-keyword">new</span> Bit();
     bit.size = size;
     <span class="hljs-keyword">return</span> bit;
   }
-
   size = <span class="hljs-number">0</span>;
 }</pre></div>
         
@@ -346,12 +347,12 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
         
       
         
-        <h3 id="bits">Bits</h3>
+        <h3 id="byte">Byte</h3>
 
         
       
         
-        <p>Each <code>Bit</code> inside a <code>Bits</code> gets decorated with the <code>IBitsField</code> object.</p>
+        <p>Each <code>Bit</code> inside a <code>Byte</code> gets decorated with the <code>IByteField</code> object.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> IByteField {
@@ -360,16 +361,17 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
   name: <span class="hljs-built_in">string</span>;
 }
 
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> IBitDefinition = [<span class="hljs-built_in">string</span>, Bit] | Bytes;</pre></div>
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> IBitDefinition = [<span class="hljs-built_in">string</span>, Bit] | Byte;</pre></div>
         
       
         
-        <p>Represents a byte(s) in memory record.</p>
+        <p>Represents a byte or bytes in memory record
+upto 8 bytes can be represented using <code>Byte</code>, this depends on the type passed to the define function</p>
 
         
-          <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Bytes <span class="hljs-keyword">implements</span> IType {
-  <span class="hljs-keyword">static</span> define(bits: IBitDefinition[], <span class="hljs-keyword">type</span>: IType, name: <span class="hljs-built_in">string</span> = <span class="hljs-string">""</span>): Bytes {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Bytes(bits, <span class="hljs-keyword">type</span>, name);
+          <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Byte <span class="hljs-keyword">implements</span> IType {
+  <span class="hljs-keyword">static</span> define(bits: IBitDefinition[], <span class="hljs-keyword">type</span>: IType, name: <span class="hljs-built_in">string</span> = <span class="hljs-string">""</span>): Byte {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Byte(bits, <span class="hljs-keyword">type</span>, name);
   }
 
   size = <span class="hljs-number">0</span>;

@@ -174,8 +174,8 @@ var Primitive = /** @class */ (function () {
 }());
 exports.Primitive = Primitive;
 // ### Bit
-// `Bit`s are the smallest, most basic data types like integers, chars and pointers on which CPU operates directly
-// and which know how to pack and unpack themselves into `Buffer`s.
+// A `Bit` is the smallest, most basic data type it can only be used inside `Bytes`
+// to represent from 1 up to 7 bits long integers
 var Bit = /** @class */ (function () {
     function Bit() {
         this.size = 0;
@@ -184,6 +184,8 @@ var Bit = /** @class */ (function () {
          offset property is set by a parent Struct. */
     Bit.define = function (size) {
         if (size === void 0) { size = 1; }
+        if (typeof size === "number" && (size > 7 || size < 1))
+            throw new Error("Bit size must be >= 1 and <= 7");
         var bit = new Bit();
         bit.size = size;
         return bit;
@@ -301,17 +303,18 @@ var Struct = /** @class */ (function () {
     return Struct;
 }());
 exports.Struct = Struct;
-// ### Bits
-// Each `Bit` inside a `Bits` gets decorated with the `IBitsField` object.
+// ### Byte
+// Each `Bit` inside a `Byte` gets decorated with the `IByteField` object.
 var IByteField = /** @class */ (function () {
     function IByteField() {
     }
     return IByteField;
 }());
 exports.IByteField = IByteField;
-// Represents a byte(s) in memory record.
-var Bytes = /** @class */ (function () {
-    function Bytes(bits, type, name) {
+// Represents a byte or bytes in memory record
+// upto 8 bytes can be represented using `Byte`, this depends on the type passed to the define function
+var Byte = /** @class */ (function () {
+    function Byte(bits, type, name) {
         this.size = 0;
         this.off = 0;
         this.bits = [];
@@ -321,11 +324,11 @@ var Bytes = /** @class */ (function () {
         this.name = name;
         this.type = type;
     }
-    Bytes.define = function (bits, type, name) {
+    Byte.define = function (bits, type, name) {
         if (name === void 0) { name = ""; }
-        return new Bytes(bits, type, name);
+        return new Byte(bits, type, name);
     };
-    Bytes.prototype.addBits = function (bits) {
+    Byte.prototype.addBits = function (bits) {
         for (var _i = 0, bits_1 = bits; _i < bits_1.length; _i++) {
             var bit = bits_1[_i];
             var bitDef = bit;
@@ -342,12 +345,12 @@ var Bytes = /** @class */ (function () {
             this.off += bitType.size;
         }
     };
-    Bytes.prototype.padBit = function (bit, size) {
+    Byte.prototype.padBit = function (bit, size) {
         while (bit.length < size)
             bit = "0" + bit;
         return bit;
     };
-    Bytes.prototype.pack = function (p, data) {
+    Byte.prototype.pack = function (p, data) {
         var _this = this;
         var fp = p.clone();
         var binaryNum = "0b" +
@@ -361,7 +364,7 @@ var Bytes = /** @class */ (function () {
         this.type.pack(fp, Number(binaryNum));
         fp.off = this.size;
     };
-    Bytes.prototype.unpack = function (p) {
+    Byte.prototype.unpack = function (p) {
         var data = {};
         var fp = p.clone();
         var binaryNum = this.type.unpack(fp);
@@ -379,9 +382,9 @@ var Bytes = /** @class */ (function () {
         }
         return data;
     };
-    return Bytes;
+    return Byte;
 }());
-exports.Bytes = Bytes;
+exports.Byte = Byte;
 // ## Variable
 //
 // Represents a variable that has a `Struct` type association with a `Pointer` to a memory location.
