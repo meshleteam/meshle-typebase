@@ -193,13 +193,10 @@ export class Primitive implements IType {
 // ### Bit
 
 // A `Bit` is the smallest, most basic data type it can only be used inside `Bytes`
-// to represent from 1 up to 7 bits long integers
 export class Bit {
   /* We do not define `offset` at construction because the
        offset property is set by a parent Struct. */
   static define(size = 1) {
-    if (typeof size === "number" && (size > 7 || size < 1))
-      throw new Error("Bit size must be >= 1 and <= 7");
     var bit = new Bit();
     bit.size = size;
     return bit;
