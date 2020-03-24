@@ -125,33 +125,33 @@
 // where `Buffer` or `ArrayBuffer` objects server as a starting point and offset is a number representing an offset
 // within the buffer in bytes.
 export class Pointer {
-    buf: Buffer;
-    off: number; /* offset */
+  buf: Buffer;
+  off: number; /* offset */
 
-    constructor(buf: Buffer, offset: number = 0) {
-        this.buf = buf;
-        this.off = offset;
-    }
+  constructor(buf: Buffer, offset: number = 0) {
+    this.buf = buf;
+    this.off = offset;
+  }
 
-    /* Return a copy of itself. */
-    clone() {
-        // return new Pointer(this.buf, this.off);
-        return this.offset();
-    }
+  /* Return a copy of itself. */
+  clone() {
+    // return new Pointer(this.buf, this.off);
+    return this.offset();
+  }
 
-    offset(off: number = 0) {
-        return new Pointer(this.buf, this.off + off);
-    }
+  offset(off: number = 0) {
+    return new Pointer(this.buf, this.off + off);
+  }
 }
 
 // ## Types
 
 // Basic properties that all types should have.
 export interface IType {
-    size: number;
-    name: string; // Optional.
-    pack(p: Pointer, data: any);
-    unpack(p: Pointer, length?: number): any;
+  size: number;
+  name: string; // Optional.
+  pack(p: Pointer, data: any);
+  unpack(p: Pointer, length?: number): any;
 }
 
 // ### Primitive
@@ -159,209 +159,322 @@ export interface IType {
 // `Primitive`s are the smallest, most basic data types like integers, chars and pointers on which CPU operates directly
 // and which know how to pack and unpack themselves into `Buffer`s.
 export class Primitive implements IType {
-
-    /* We do not define `offset` at construction because the
+  /* We do not define `offset` at construction because the
        offset property is set by a parent Struct. */
-    static define(size = 1, onPack = (() => {}) as any,
-                  onUnpack = (() => {}) as any, name: string = '') {
-        var field = new Primitive;
-        field.size = size;
-        field.name = name;
-        field.onPack = onPack;
-        field.onUnpack = onUnpack;
-        return field;
-    }
+  static define(
+    size = 1,
+    onPack = (() => {}) as any,
+    onUnpack = (() => {}) as any,
+    name: string = ""
+  ) {
+    var field = new Primitive();
+    field.size = size;
+    field.name = name;
+    field.onPack = onPack;
+    field.onUnpack = onUnpack;
+    return field;
+  }
 
-    size = 0;
-    name: string;
+  size = 0;
+  name: string;
 
-    onPack: (value, offset) => void;
-    onUnpack: (offset: number) => any;
+  onPack: (value, offset) => void;
+  onUnpack: (offset: number) => any;
 
-    pack(p: Pointer, value: any) {
-        this.onPack.call(p.buf, value, p.off);
-    }
+  pack(p: Pointer, value: any) {
+    this.onPack.call(p.buf, value, p.off);
+  }
 
-    unpack(p: Pointer): any {
-        return this.onUnpack.call(p.buf, p.off);
-    }
+  unpack(p: Pointer): any {
+    return this.onUnpack.call(p.buf, p.off);
+  }
+}
+
+// ### Bit
+
+// `Bit`s are the smallest, most basic data types like integers, chars and pointers on which CPU operates directly
+// and which know how to pack and unpack themselves into `Buffer`s.
+export class Bit {
+  /* We do not define `offset` at construction because the
+       offset property is set by a parent Struct. */
+  static define(size = 1) {
+    var bit = new Bit();
+    bit.size = size;
+    return bit;
+  }
+
+  size = 0;
 }
 
 // ### List
 
 // Array type, named `List` because `Array` is a reserved word in JavaScript.
 export class List implements IType {
+  static define(type: IType, length: number = 0) {
+    var list = new List();
+    list.type = type;
+    list.length = length;
+    list.size = length * type.size;
+    return list;
+  }
 
-    static define(type: IType, length: number = 0) {
-        var list = new List;
-        list.type = type;
-        list.length = length;
-        list.size = length * type.size;
-        return list;
-    }
+  size = 0;
+  name: string;
 
-    size = 0;
-    name: string;
+  type: IType;
 
-    type: IType;
-
-    /* If 0, means we don't know the exact size of our array,
+  /* If 0, means we don't know the exact size of our array,
        think char[]* for example to represent string. */
-    length = 0;
+  length = 0;
 
-    pack(p: Pointer, values: any[], length = this.length) {
-        var valp = p.clone();
+  pack(p: Pointer, values: any[], length = this.length) {
+    var valp = p.clone();
 
-        // This allows to provide simle `number`s where 64-bit `[number, number]` is required.
-        if(!(values instanceof Array)) values = [values];
+    // This allows to provide simle `number`s where 64-bit `[number, number]` is required.
+    if (!(values instanceof Array)) values = [values];
 
-        if(!length) length = values.length;
-        length = Math.min(length, values.length);
-        for(var i = 0; i < length; i++) {
-            this.type.pack(valp, values[i]);
-            valp.off += this.type.size;
-        }
+    if (!length) length = values.length;
+    length = Math.min(length, values.length);
+    for (var i = 0; i < length; i++) {
+      this.type.pack(valp, values[i]);
+      valp.off += this.type.size;
     }
+  }
 
-    unpack(p: Pointer, length = this.length): any {
-        var values = [];
-        var valp = p.clone();
-        for(var i = 0; i < length; i++) {
-            values.push(this.type.unpack(valp));
-            valp.off += this.type.size;
-        }
-        return values;
+  unpack(p: Pointer, length = this.length): any {
+    var values = [];
+    var valp = p.clone();
+    for (var i = 0; i < length; i++) {
+      values.push(this.type.unpack(valp));
+      valp.off += this.type.size;
     }
+    return values;
+  }
 }
 
 // ### Struct
 
 // Each `IType` inside a `Struct` gets decorated with the `IStructField` object.
 export class IStructField {
-    type: IType;
-    offset: number;
-    name: string;
+  type: IType;
+  offset: number;
+  name: string;
 }
 
-export type IFieldDefinition = [IType, string] | Struct;
+export type IFieldDefinition = [string, IType] | Struct;
 
 // Represents a structured memory record definition similar to that of `struct` in `C`.
 export class Struct implements IType {
+  static define(fields: IFieldDefinition[], name: string = ""): Struct {
+    return new Struct(fields, name);
+  }
 
-    static define(fields: IFieldDefinition[], name: string = ''): Struct {
-        return new Struct(fields, name);
+  size = 0;
+  name: string;
+
+  fields: IStructField[] = [];
+
+  map: { [s: string]: IStructField } = {};
+
+  constructor(fields: IFieldDefinition[], name: string) {
+    this.addFields(fields);
+    this.name = name;
+  }
+
+  protected addFields(fields: IFieldDefinition[]) {
+    for (var field of fields) {
+      /* Inherit properties from another struct */
+      if (field instanceof Struct) {
+        var parent = field as Struct;
+        var parentfields = parent.fields.map(function(field: IStructField) {
+          return [field.type, field.name];
+        });
+        this.addFields(parentfields as [string, IType][]);
+        continue;
+      }
+
+      var fielddef = field as [string, IType];
+      var [name, struct] = fielddef;
+      var entry: IStructField = {
+        type: struct,
+        offset: this.size,
+        name: name
+      };
+      this.fields.push(entry);
+      this.map[name] = entry;
+      this.size += struct.size;
     }
+  }
 
-    size = 0;
-    name: string;
-
-    fields: IStructField[] = [];
-
-    map: {[s: string]: IStructField} = {};
-
-    constructor(fields: IFieldDefinition[], name: string) {
-        this.addFields(fields);
-        this.name = name;
+  pack(p: Pointer, data: any) {
+    var fp = p.clone();
+    for (var field of this.fields) {
+      field.type.pack(fp, data[field.name]);
+      fp.off += field.type.size;
     }
+  }
 
-    protected addFields(fields: IFieldDefinition[]) {
-        for(var field of fields) {
-            /* Inherit properties from another struct */
-            if(field instanceof Struct) {
-                var parent = field as Struct;
-                var parentfields = parent.fields.map(function(field: IStructField) {
-                    return [field.type, field.name];
-                });
-                this.addFields(parentfields as [IType, string][]);
-                continue;
-            }
-
-            var fielddef = field as [IType, string];
-            var [struct, name] = fielddef;
-            var entry: IStructField = {
-                type: struct,
-                offset: this.size,
-                name: name,
-            };
-            this.fields.push(entry);
-            this.map[name] = entry;
-            this.size += struct.size;
-        }
+  unpack(p: Pointer): any {
+    var data: any = {};
+    var fp = p.clone();
+    for (var field of this.fields) {
+      data[field.name] = field.type.unpack(fp);
+      fp.off += field.type.size;
     }
-
-    pack(p: Pointer, data: any) {
-        var fp = p.clone();
-        for(var field of this.fields) {
-            field.type.pack(fp, data[field.name]);
-            fp.off += field.type.size;
-        }
-    }
-
-    unpack(p: Pointer): any {
-        var data: any = {};
-        var fp = p.clone();
-        for(var field of this.fields) {
-            data[field.name] = field.type.unpack(fp);
-            fp.off += field.type.size;
-        }
-        return data;
-    }
+    return data;
+  }
 }
 
+// ### Bits
+
+// Each `Bit` inside a `Bits` gets decorated with the `IBitsField` object.
+export class IByteField {
+  type: Bit;
+  offset: number;
+  name: string;
+}
+
+export type IBitDefinition = [string, Bit] | Bytes;
+
+// Represents a byte(s) in memory record.
+export class Bytes implements IType {
+  static define(bits: IBitDefinition[], type: IType, name: string = ""): Bytes {
+    return new Bytes(bits, type, name);
+  }
+
+  size = 0;
+  off = 0;
+  type: IType;
+  name: string;
+
+  bits: IByteField[] = [];
+
+  map: { [s: string]: IByteField } = {};
+
+  constructor(bits: IBitDefinition[], type: IType, name: string) {
+    this.addBits(bits);
+    this.size = type.size;
+    this.name = name;
+    this.type = type;
+  }
+
+  protected addBits(bits: IBitDefinition[]) {
+    for (var bit of bits) {
+      var bitDef = bit as [string, Bit];
+      var [name, bitType] = bitDef;
+      if (!(bitType instanceof Bit))
+        throw new Error("Bytes can only contain bits");
+      var entry: IByteField = {
+        type: bitType,
+        offset: this.off,
+        name: name
+      };
+      this.bits.push(entry);
+      this.map[name] = entry;
+      this.off += bitType.size;
+    }
+  }
+
+  protected padBit(bit: string, size: number) {
+    while (bit.length < size) bit = "0" + bit;
+    return bit;
+  }
+
+  pack(p: Pointer, data: any) {
+    var fp = p.clone();
+    var binaryNum =
+      "0b" +
+      this.bits
+        .map(b => {
+          let d = data[b.name];
+          d = this.padBit(d, b.type.size);
+          return d.toString(2);
+        })
+        .join("");
+    this.type.pack(fp, Number(binaryNum));
+    fp.off = this.size;
+  }
+
+  unpack(p: Pointer): any {
+    var data: any = {};
+    var fp = p.clone();
+    var binaryNum = this.type.unpack(fp);
+    if (!(typeof binaryNum === "number"))
+      throw new Error("invalid pointer passed to unpack function");
+    binaryNum = binaryNum.toString(2);
+    let offset = 0;
+    for (var bit of this.bits) {
+      var decimalNum = binaryNum.slice(offset, offset + bit.type.size);
+      decimalNum = "0b" + this.padBit(decimalNum, bit.type.size);
+      decimalNum = Number(decimalNum);
+      data[bit.name] = Number(decimalNum.toString(10));
+      offset += bit.type.size;
+    }
+    return data;
+  }
+}
 
 // ## Variable
 //
 // Represents a variable that has a `Struct` type association with a `Pointer` to a memory location.
 export class Variable {
-    type: IType;
-    pointer: Pointer;
+  type: IType;
+  pointer: Pointer;
 
-    constructor(type: IType, pointer: Pointer) {
-        this.type = type;
-        this.pointer = pointer;
-    }
+  constructor(type: IType, pointer: Pointer) {
+    this.type = type;
+    this.pointer = pointer;
+  }
 
-    pack(data: any) {
-        this.type.pack(this.pointer, data);
-    }
+  pack(data: any) {
+    this.type.pack(this.pointer, data);
+  }
 
-    unpack(length?): any {
-        return this.type.unpack(this.pointer, length);
-    }
+  unpack(length?): any {
+    return this.type.unpack(this.pointer, length);
+  }
 
-    cast(newtype: IType) {
-        this.type = newtype;
-    }
+  cast(newtype: IType) {
+    this.type = newtype;
+  }
 
-    'get'(name: string) {
-        if(!(this.type instanceof Struct)) throw Error('Variable is not a `Struct`.');
-        var struct = this.type as Struct;
-        var field = struct.map[name] as IStructField;
-        var p = this.pointer.clone();
-        p.off += field.offset;
-        return new Variable(field.type, p);
-    }
+  get(name: string) {
+    if (!(this.type instanceof Struct))
+      throw Error("Variable is not a `Struct`.");
+    var struct = this.type as Struct;
+    var field = struct.map[name] as IStructField;
+    var p = this.pointer.clone();
+    p.off += field.offset;
+    return new Variable(field.type, p);
+  }
 }
 
 // ## Basic Types
 //
 // Define basic types and export as part of the library.
 var bp = Buffer.prototype;
-export var i8   = Primitive.define(1, bp.writeInt8,     bp.readInt8);
-export var ui8  = Primitive.define(1, bp.writeUInt8,    bp.readUInt8);
+export var b1 = Bit.define(1);
+export var b2 = Bit.define(2);
+export var b3 = Bit.define(3);
+export var b4 = Bit.define(4);
+export var b5 = Bit.define(5);
+export var b6 = Bit.define(6);
+export var b7 = Bit.define(7);
+export var i8 = Primitive.define(1, bp.writeInt8, bp.readInt8);
+export var ui8 = Primitive.define(1, bp.writeUInt8, bp.readUInt8);
 
-export var i16  = Primitive.define(2, bp.writeInt16LE,  bp.readInt16LE);
+export var i16 = Primitive.define(2, bp.writeInt16LE, bp.readInt16LE);
 export var ui16 = Primitive.define(2, bp.writeUInt16LE, bp.readUInt16LE);
-export var i32  = Primitive.define(4, bp.writeInt32LE,  bp.readInt32LE);
+export var i32 = Primitive.define(4, bp.writeInt32LE, bp.readInt32LE);
 export var ui32 = Primitive.define(4, bp.writeUInt32LE, bp.readUInt32LE);
-export var i64  = List.define(i32, 2);
+export var i64 = List.define(i32, 2);
 export var ui64 = List.define(ui32, 2);
 
-export var bi16  = Primitive.define(2, bp.writeInt16BE,  bp.readInt16BE);
+export var bi16 = Primitive.define(2, bp.writeInt16BE, bp.readInt16BE);
 export var bui16 = Primitive.define(2, bp.writeUInt16BE, bp.readUInt16BE);
-export var bi32  = Primitive.define(4, bp.writeInt32BE,  bp.readInt32BE);
+export var bi32 = Primitive.define(4, bp.writeInt32BE, bp.readInt32BE);
 export var bui32 = Primitive.define(4, bp.writeUInt32BE, bp.readUInt32BE);
-export var bi64  = List.define(bi32, 2);
+export var bi64 = List.define(bi32, 2);
 export var bui64 = List.define(bui32, 2);
 
 export var t_void = Primitive.define(0); // `0` means variable length, like `void*`.

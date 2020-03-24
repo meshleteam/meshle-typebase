@@ -17,74 +17,62 @@
           <h1 id="typebase">Typebase</h1>
 <p><a href="http://www.npmjs.com/package/typebase">typebase</a> provides C-like Types, Structs and Pointers for JavaScript.</p>
 <p>Let’s jump straight into example. Consider the following <code>C/C++</code> <em>stuct</em>:</p>
-<pre><code class="lang-c"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> address {
+<pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">address</span> {</span>
     <span class="hljs-keyword">int</span> port,
     <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> ip[<span class="hljs-number">4</span>],
-}
-</code></pre>
+}</code></pre>
 <p>You can represent it using <code>typebase</code> like so:</p>
-<pre><code class="lang-js"><span class="hljs-keyword">var</span> t = <span class="hljs-built_in">require</span>(<span class="hljs-string">'typebase'</span>);
+<pre><code class="language-js"><span class="hljs-keyword">var</span> t = <span class="hljs-built_in">require</span>(<span class="hljs-string">'typebase'</span>);
 <span class="hljs-keyword">var</span> address = t.Struct.define([
     [<span class="hljs-string">'port'</span>, t.i32],
     [<span class="hljs-string">'ip'</span>, t.List.define(t.ui8, <span class="hljs-number">4</span>)]
-]);
-</code></pre>
+]);</code></pre>
 <p>You can use your <code>address</code> <em>struct</em> to pack binary data into <code>Buffer</code>. But, first
 we create a <em>pointer</em> to memory where data will be located. <code>Pointer</code> is defined as
 a tuple of <code>Buffer</code> and a <code>number</code> offset in the buffer:</p>
-<pre><code class="lang-js"><span class="hljs-keyword">var</span> p = <span class="hljs-keyword">new</span> t.Pointer(<span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">100</span>), <span class="hljs-number">0</span>);
-</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">var</span> p = <span class="hljs-keyword">new</span> t.Pointer(<span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">100</span>), <span class="hljs-number">0</span>);</code></pre>
 <p>Finally, you can pack your data into the <code>Buffer</code> specified by the pointer <code>p</code>:</p>
-<pre><code class="lang-js"><span class="hljs-keyword">var</span> host = {
-    port: <span class="hljs-number">8080</span>,
-    ip: [<span class="hljs-number">127</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]
+<pre><code class="language-js"><span class="hljs-keyword">var</span> host = {
+    <span class="hljs-attr">port</span>: <span class="hljs-number">8080</span>,
+    <span class="hljs-attr">ip</span>: [<span class="hljs-number">127</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]
 };
-address.pack(p, host);
-</code></pre>
+address.pack(p, host);</code></pre>
 <p>And unpack it back:</p>
-<pre><code class="lang-js"><span class="hljs-keyword">var</span> unpacked = address.unpack(p);
-</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">var</span> unpacked = address.unpack(p);</code></pre>
 <p>Or use <code>Variable</code> object to do the same thing:</p>
-<pre><code class="lang-js"><span class="hljs-keyword">var</span> v = <span class="hljs-keyword">new</span> t.Variable(address, p);
+<pre><code class="language-js"><span class="hljs-keyword">var</span> v = <span class="hljs-keyword">new</span> t.Variable(address, p);
 v.pack(host);
-<span class="hljs-keyword">var</span> unpacked = v.unpack();
-</code></pre>
-<p>Now let’s say you want to <em>“extend”</em> your C struct with a <code>protocol</code> field:</p>
-<pre><code class="lang-c"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> address_and_protocol {
+<span class="hljs-keyword">var</span> unpacked = v.unpack();</code></pre>
+<p>Now let’s say you want to *”extend”* your C struct with a <code>protocol</code> field:</p>
+<pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">address_and_protocol</span> {</span>
     <span class="hljs-keyword">int</span> port,
     <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> ip[<span class="hljs-number">4</span>],
     <span class="hljs-keyword">int</span> protocol,
-}
-</code></pre>
+}</code></pre>
 <p>In <em>C11</em> you can actually do it like this:</p>
-<pre><code class="lang-c"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> address_and_protocol {
-    <span class="hljs-keyword">struct</span> address,
-    <span class="hljs-keyword">int</span> protocol,
-}
-</code></pre>
+<pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">address_and_protocol</span> {</span>
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">address</span>,
+    <span class="hljs-title">int</span> <span class="hljs-title">protocol</span>,
+}</span></code></pre>
 <p><code>typebase</code> also allows you to “extend” <code>Struct</code>s:</p>
-<pre><code class="lang-js"><span class="hljs-keyword">var</span> address_and_protocol = t.Struct.define([
+<pre><code class="language-js"><span class="hljs-keyword">var</span> address_and_protocol = t.Struct.define([
     address,
     [<span class="hljs-string">'protocol'</span>, t.i32]
-]);
-</code></pre>
-<p>Now you can <em>“cast”</em> your <code>Variable</code> to the new type and write data to it:</p>
-<pre><code class="lang-js">v.cast(address_and_protocol);
+]);</code></pre>
+<p>Now you can *”cast”* your <code>Variable</code> to the new type and write data to it:</p>
+<pre><code class="language-js">v.cast(address_and_protocol);
 v.pack({
-    port: <span class="hljs-number">8080</span>,
-    ip: [<span class="hljs-number">127</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>],
-    protocol: <span class="hljs-number">4</span>
-});
-</code></pre>
+    <span class="hljs-attr">port</span>: <span class="hljs-number">8080</span>,
+    <span class="hljs-attr">ip</span>: [<span class="hljs-number">127</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>],
+    <span class="hljs-attr">protocol</span>: <span class="hljs-number">4</span>
+});</code></pre>
 <p>When you pack and unpack <code>Variable</code>s, you don’t need to do it for the whole <code>Variable</code> at once, instead
 you can just pick the field you need:</p>
-<pre><code class="lang-js">v.get(<span class="hljs-string">'ip'</span>).pack([<span class="hljs-number">192</span>, <span class="hljs-number">168</span>, <span class="hljs-number">1</span>, <span class="hljs-number">100</span>]);
-<span class="hljs-built_in">console</span>.log(v.get(<span class="hljs-string">'ip'</span>).unpack());
-</code></pre>
+<pre><code class="language-js">v.get(<span class="hljs-string">'ip'</span>).pack([<span class="hljs-number">192</span>, <span class="hljs-number">168</span>, <span class="hljs-number">1</span>, <span class="hljs-number">100</span>]);
+<span class="hljs-built_in">console</span>.log(v.get(<span class="hljs-string">'ip'</span>).unpack());</code></pre>
 <p>One useful property all <code>typebase</code> types have is <code>size</code>, which is size of the type in bytes:</p>
-<pre><code class="lang-js"><span class="hljs-built_in">console</span>.log(address.size);
-</code></pre>
-<h2 id="tl-dr">TL;DR</h2>
+<pre><code class="language-js"><span class="hljs-built_in">console</span>.log(address.size);</code></pre>
+<h2 id="tldr">TL;DR</h2>
 <p><code>typbase</code> defines five basic building blocks: <code>Pointer</code>, <code>Primitive</code>, <code>List</code>, <code>Struct</code>, <code>Variable</code>.</p>
 <p><code>Pointer</code> represents a location of data in memory, similar to <code>C/C++</code> pointers.</p>
 <p><code>Primitive</code> is a basic data type that knows how to pack and unpack itself into <code>Buffer</code>. <code>Struct</code> is a structure
@@ -108,18 +96,28 @@ within the buffer in bytes.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Pointer {
-    buf: Buffer;
-    off: <span class="hljs-built_in">number</span>; <span class="hljs-comment">/* offset */</span>
+  buf: Buffer;
+  off: <span class="hljs-built_in">number</span>; <span class="hljs-comment">/* offset */</span>
 
-    <span class="hljs-keyword">constructor</span>(buf: Buffer, offset: number = 0) {
-        <span class="hljs-keyword">this</span>.buf = buf;
-        <span class="hljs-keyword">this</span>.off = offset;
-    }
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">buf: Buffer, offset: <span class="hljs-built_in">number</span> = 0</span>) {
+    <span class="hljs-keyword">this</span>.buf = buf;
+    <span class="hljs-keyword">this</span>.off = offset;
+  }
 
-    <span class="hljs-comment">/* Return a copy of itself. */</span>
-    clone() {
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Pointer(<span class="hljs-keyword">this</span>.buf, <span class="hljs-keyword">this</span>.off);
-    }
+  <span class="hljs-comment">/* Return a copy of itself. */</span>
+  clone() {</pre></div>
+        
+      
+        
+        <p>return new Pointer(this.buf, this.off);</p>
+
+        
+          <div class='highlight'><pre>    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.offset();
+  }
+
+  offset(off: <span class="hljs-built_in">number</span> = <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Pointer(<span class="hljs-keyword">this</span>.buf, <span class="hljs-keyword">this</span>.off + off);
+  }
 }</pre></div>
         
       
@@ -133,10 +131,10 @@ within the buffer in bytes.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> IType {
-    size: <span class="hljs-built_in">number</span>;
-    name: <span class="hljs-built_in">string</span>; <span class="hljs-comment">// Optional.</span>
-    pack(p: Pointer, data: <span class="hljs-built_in">any</span>);
-    unpack(p: Pointer, length?: <span class="hljs-built_in">number</span>): <span class="hljs-built_in">any</span>;
+  size: <span class="hljs-built_in">number</span>;
+  name: <span class="hljs-built_in">string</span>; <span class="hljs-comment">// Optional.</span>
+  pack(p: Pointer, data: <span class="hljs-built_in">any</span>);
+  unpack(p: Pointer, length?: <span class="hljs-built_in">number</span>): <span class="hljs-built_in">any</span>;
 }</pre></div>
         
       
@@ -151,32 +149,58 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Primitive <span class="hljs-keyword">implements</span> IType {
-
-    <span class="hljs-comment">/* We do not define `offset` at construction because the
+  <span class="hljs-comment">/* We do not define `offset` at construction because the
        offset property is set by a parent Struct. */</span>
-    <span class="hljs-keyword">static</span> define(size = <span class="hljs-number">1</span>, onPack = (() =&gt; {}) as <span class="hljs-built_in">any</span>,
-                  onUnpack = (() =&gt; {}) as <span class="hljs-built_in">any</span>, name: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>) {
-        <span class="hljs-keyword">var</span> field = <span class="hljs-keyword">new</span> Primitive;
-        field.size = size;
-        field.name = name;
-        field.onPack = onPack;
-        field.onUnpack = onUnpack;
-        <span class="hljs-keyword">return</span> field;
-    }
+  <span class="hljs-keyword">static</span> define(
+    size = <span class="hljs-number">1</span>,
+    onPack = <span class="hljs-function">(<span class="hljs-params">(<span class="hljs-params"></span>) =&gt; {}</span>) <span class="hljs-params">as</span> <span class="hljs-params">any</span>,
+    <span class="hljs-params">onUnpack</span> = (<span class="hljs-params">(<span class="hljs-params"></span>) =&gt; {}</span>) <span class="hljs-params">as</span> <span class="hljs-params">any</span>,
+    <span class="hljs-params">name</span>: <span class="hljs-params">string</span> = ""
+  ) {
+    <span class="hljs-params">var</span> <span class="hljs-params">field</span> = <span class="hljs-params">new</span> <span class="hljs-params">Primitive</span><span class="hljs-params">()</span>;
+    <span class="hljs-params">field</span>.<span class="hljs-params">size</span> = <span class="hljs-params">size</span>;
+    <span class="hljs-params">field</span>.<span class="hljs-params">name</span> = <span class="hljs-params">name</span>;
+    <span class="hljs-params">field</span>.<span class="hljs-params">onPack</span> = <span class="hljs-params">onPack</span>;
+    <span class="hljs-params">field</span>.<span class="hljs-params">onUnpack</span> = <span class="hljs-params">onUnpack</span>;
+    <span class="hljs-params">return</span> <span class="hljs-params">field</span>;
+  }
 
-    size = <span class="hljs-number">0</span>;
-    name: <span class="hljs-built_in">string</span>;
+  <span class="hljs-params">size</span> = 0;
+  <span class="hljs-params">name</span>: <span class="hljs-params">string</span>;
 
-    onPack: (value, offset) =&gt; <span class="hljs-built_in">void</span>;
-    onUnpack: (offset: <span class="hljs-built_in">number</span>) =&gt; <span class="hljs-built_in">any</span>;
+  <span class="hljs-params">onPack</span>: (<span class="hljs-params">value, offset</span>) =&gt;</span> <span class="hljs-built_in">void</span>;
+  onUnpack: <span class="hljs-function">(<span class="hljs-params">offset: <span class="hljs-built_in">number</span></span>) =&gt;</span> <span class="hljs-built_in">any</span>;
 
-    pack(p: Pointer, value: <span class="hljs-built_in">any</span>) {
-        <span class="hljs-keyword">this</span>.onPack.call(p.buf, value, p.off);
-    }
+  pack(p: Pointer, value: <span class="hljs-built_in">any</span>) {
+    <span class="hljs-keyword">this</span>.onPack.call(p.buf, value, p.off);
+  }
 
-    unpack(p: Pointer): <span class="hljs-built_in">any</span> {
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.onUnpack.call(p.buf, p.off);
-    }
+  unpack(p: Pointer): <span class="hljs-built_in">any</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.onUnpack.call(p.buf, p.off);
+  }
+}</pre></div>
+        
+      
+        
+        <h3 id="bit">Bit</h3>
+
+        
+      
+        
+        <p><code>Bit</code>s are the smallest, most basic data types like integers, chars and pointers on which CPU operates directly
+and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
+
+        
+          <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Bit {
+  <span class="hljs-comment">/* We do not define `offset` at construction because the
+       offset property is set by a parent Struct. */</span>
+  <span class="hljs-keyword">static</span> define(size = <span class="hljs-number">1</span>) {
+    <span class="hljs-keyword">var</span> bit = <span class="hljs-keyword">new</span> Bit();
+    bit.size = size;
+    <span class="hljs-keyword">return</span> bit;
+  }
+
+  size = <span class="hljs-number">0</span>;
 }</pre></div>
         
       
@@ -190,43 +214,50 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> List <span class="hljs-keyword">implements</span> IType {
+  <span class="hljs-keyword">static</span> define(<span class="hljs-keyword">type</span>: IType, length: <span class="hljs-built_in">number</span> = <span class="hljs-number">0</span>) {
+    <span class="hljs-keyword">var</span> list = <span class="hljs-keyword">new</span> List();
+    list.type = <span class="hljs-keyword">type</span>;
+    list.length = length;
+    list.size = length * <span class="hljs-keyword">type</span>.size;
+    <span class="hljs-keyword">return</span> list;
+  }
 
-    <span class="hljs-keyword">static</span> define(<span class="hljs-keyword">type</span>: IType, length: <span class="hljs-built_in">number</span> = <span class="hljs-number">0</span>) {
-        <span class="hljs-keyword">var</span> list = <span class="hljs-keyword">new</span> List;
-        list.type = <span class="hljs-keyword">type</span>;
-        list.length = length;
-        list.size = length * <span class="hljs-keyword">type</span>.size;
-        <span class="hljs-keyword">return</span> list;
-    }
+  size = <span class="hljs-number">0</span>;
+  name: <span class="hljs-built_in">string</span>;
 
-    size = <span class="hljs-number">0</span>;
-    name: <span class="hljs-built_in">string</span>;
+  <span class="hljs-keyword">type</span>: IType;
 
-    <span class="hljs-keyword">type</span>: IType;
-
-    <span class="hljs-comment">/* If 0, means we don't know the exact size of our array,
+  <span class="hljs-comment">/* If 0, means we don't know the exact size of our array,
        think char[]* for example to represent string. */</span>
-    length = <span class="hljs-number">0</span>;
+  length = <span class="hljs-number">0</span>;
 
-    pack(p: Pointer, values: <span class="hljs-built_in">any</span>[], length = <span class="hljs-keyword">this</span>.length) {
-        <span class="hljs-keyword">var</span> valp = p.clone();
-        <span class="hljs-keyword">if</span>(!length) length = values.length;
-        length = <span class="hljs-built_in">Math</span>.min(length, values.length);
-        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; length; i++) {
-            <span class="hljs-keyword">this</span>.type.pack(valp, values[i]);
-            valp.off += <span class="hljs-keyword">this</span>.type.size;
-        }
-    }
+  pack(p: Pointer, values: <span class="hljs-built_in">any</span>[], length = <span class="hljs-keyword">this</span>.length) {
+    <span class="hljs-keyword">var</span> valp = p.clone();</pre></div>
+        
+      
+        
+        <p>This allows to provide simle <code>number</code>s where 64-bit <code>[number, number]</code> is required.</p>
 
-    unpack(p: Pointer, length = <span class="hljs-keyword">this</span>.length): <span class="hljs-built_in">any</span> {
-        <span class="hljs-keyword">var</span> values = [];
-        <span class="hljs-keyword">var</span> valp = p.clone();
-        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; length; i++) {
-            values.push(<span class="hljs-keyword">this</span>.type.unpack(valp));
-            valp.off += <span class="hljs-keyword">this</span>.type.size;
-        }
-        <span class="hljs-keyword">return</span> values;
+        
+          <div class='highlight'><pre>    <span class="hljs-keyword">if</span> (!(values <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>)) values = [values];
+
+    <span class="hljs-keyword">if</span> (!length) length = values.length;
+    length = <span class="hljs-built_in">Math</span>.min(length, values.length);
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; length; i++) {
+      <span class="hljs-keyword">this</span>.type.pack(valp, values[i]);
+      valp.off += <span class="hljs-keyword">this</span>.type.size;
     }
+  }
+
+  unpack(p: Pointer, length = <span class="hljs-keyword">this</span>.length): <span class="hljs-built_in">any</span> {
+    <span class="hljs-keyword">var</span> values = [];
+    <span class="hljs-keyword">var</span> valp = p.clone();
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; length; i++) {
+      values.push(<span class="hljs-keyword">this</span>.type.unpack(valp));
+      valp.off += <span class="hljs-keyword">this</span>.type.size;
+    }
+    <span class="hljs-keyword">return</span> values;
+  }
 }</pre></div>
         
       
@@ -240,9 +271,9 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> IStructField {
-    <span class="hljs-keyword">type</span>: IType;
-    offset: <span class="hljs-built_in">number</span>;
-    name: <span class="hljs-built_in">string</span>;
+  <span class="hljs-keyword">type</span>: IType;
+  offset: <span class="hljs-built_in">number</span>;
+  name: <span class="hljs-built_in">string</span>;
 }
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> IFieldDefinition = [<span class="hljs-built_in">string</span>, IType] | Struct;</pre></div>
@@ -253,65 +284,164 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Struct <span class="hljs-keyword">implements</span> IType {
+  <span class="hljs-keyword">static</span> define(fields: IFieldDefinition[], name: <span class="hljs-built_in">string</span> = <span class="hljs-string">""</span>): Struct {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Struct(fields, name);
+  }
 
-    <span class="hljs-keyword">static</span> define(fields: IFieldDefinition[], name: <span class="hljs-built_in">string</span> = <span class="hljs-string">''</span>): Struct {
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Struct(fields, name);
+  size = <span class="hljs-number">0</span>;
+  name: <span class="hljs-built_in">string</span>;
+
+  fields: IStructField[] = [];
+
+  map: { [s: <span class="hljs-built_in">string</span>]: IStructField } = {};
+
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">fields: IFieldDefinition[], name: <span class="hljs-built_in">string</span></span>) {
+    <span class="hljs-keyword">this</span>.addFields(fields);
+    <span class="hljs-keyword">this</span>.name = name;
+  }
+
+  <span class="hljs-keyword">protected</span> addFields(fields: IFieldDefinition[]) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> field of fields) {
+      <span class="hljs-comment">/* Inherit properties from another struct */</span>
+      <span class="hljs-keyword">if</span> (field <span class="hljs-keyword">instanceof</span> Struct) {
+        <span class="hljs-keyword">var</span> parent = field <span class="hljs-keyword">as</span> Struct;
+        <span class="hljs-keyword">var</span> parentfields = parent.fields.map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">field: IStructField</span>) </span>{
+          <span class="hljs-keyword">return</span> [field.type, field.name];
+        });
+        <span class="hljs-keyword">this</span>.addFields(parentfields <span class="hljs-keyword">as</span> [<span class="hljs-built_in">string</span>, IType][]);
+        <span class="hljs-keyword">continue</span>;
+      }
+
+      <span class="hljs-keyword">var</span> fielddef = field <span class="hljs-keyword">as</span> [<span class="hljs-built_in">string</span>, IType];
+      <span class="hljs-keyword">var</span> [name, struct] = fielddef;
+      <span class="hljs-keyword">var</span> entry: IStructField = {
+        <span class="hljs-keyword">type</span>: struct,
+        offset: <span class="hljs-keyword">this</span>.size,
+        name: name
+      };
+      <span class="hljs-keyword">this</span>.fields.push(entry);
+      <span class="hljs-keyword">this</span>.map[name] = entry;
+      <span class="hljs-keyword">this</span>.size += struct.size;
     }
+  }
 
-    size = <span class="hljs-number">0</span>;
-    name: <span class="hljs-built_in">string</span>;
-
-    fields: IStructField[] = [];
-
-    map: {[s: <span class="hljs-built_in">string</span>]: IStructField} = {};
-
-    <span class="hljs-keyword">constructor</span>(fields: IFieldDefinition[], name: string) {
-        <span class="hljs-keyword">this</span>.addFields(fields);
-        <span class="hljs-keyword">this</span>.name = name;
+  pack(p: Pointer, data: <span class="hljs-built_in">any</span>) {
+    <span class="hljs-keyword">var</span> fp = p.clone();
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> field of <span class="hljs-keyword">this</span>.fields) {
+      field.type.pack(fp, data[field.name]);
+      fp.off += field.type.size;
     }
+  }
 
-    <span class="hljs-keyword">protected</span> addFields(fields: IFieldDefinition[]) {
-        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> field of fields) {
-            <span class="hljs-comment">/* Inherit properties from another struct */</span>
-            <span class="hljs-keyword">if</span>(field <span class="hljs-keyword">instanceof</span> Struct) {
-                <span class="hljs-keyword">var</span> parent = field as Struct;
-                <span class="hljs-keyword">var</span> parentfields = parent.fields.map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">field: IStructField</span>) </span>{
-                    <span class="hljs-keyword">return</span> [field.name, field.type];
-                });
-                <span class="hljs-keyword">this</span>.addFields(parentfields as [<span class="hljs-built_in">string</span>, IType][]);
-                <span class="hljs-keyword">continue</span>;
-            }
-
-            <span class="hljs-keyword">var</span> fielddef = field as [<span class="hljs-built_in">string</span>, IType];
-            <span class="hljs-keyword">var</span> [name, struct] = fielddef;
-            <span class="hljs-keyword">var</span> entry: IStructField = {
-                <span class="hljs-keyword">type</span>: struct,
-                offset: <span class="hljs-keyword">this</span>.size,
-                name: name,
-            };
-            <span class="hljs-keyword">this</span>.fields.push(entry);
-            <span class="hljs-keyword">this</span>.map[name] = entry;
-            <span class="hljs-keyword">this</span>.size += struct.size;
-        }
+  unpack(p: Pointer): <span class="hljs-built_in">any</span> {
+    <span class="hljs-keyword">var</span> data: <span class="hljs-built_in">any</span> = {};
+    <span class="hljs-keyword">var</span> fp = p.clone();
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> field of <span class="hljs-keyword">this</span>.fields) {
+      data[field.name] = field.type.unpack(fp);
+      fp.off += field.type.size;
     }
+    <span class="hljs-keyword">return</span> data;
+  }
+}</pre></div>
+        
+      
+        
+        <h3 id="bits">Bits</h3>
 
-    pack(p: Pointer, data: <span class="hljs-built_in">any</span>) {
-        <span class="hljs-keyword">var</span> fp = p.clone();
-        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> field of <span class="hljs-keyword">this</span>.fields) {
-            field.type.pack(fp, data[field.name]);
-            fp.off += field.type.size;
-        }
-    }
+        
+      
+        
+        <p>Each <code>Bit</code> inside a <code>Bits</code> gets decorated with the <code>IBitsField</code> object.</p>
 
-    unpack(p: Pointer): <span class="hljs-built_in">any</span> {
-        <span class="hljs-keyword">var</span> data: <span class="hljs-built_in">any</span> = {};
-        <span class="hljs-keyword">var</span> fp = p.clone();
-        <span class="hljs-keyword">for</span>(<span class="hljs-keyword">var</span> field of <span class="hljs-keyword">this</span>.fields) {
-            data[field.name] = field.type.unpack(fp);
-            fp.off += field.type.size;
-        }
-        <span class="hljs-keyword">return</span> data;
+        
+          <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> IByteField {
+  <span class="hljs-keyword">type</span>: Bit;
+  offset: <span class="hljs-built_in">number</span>;
+  name: <span class="hljs-built_in">string</span>;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> IBitDefinition = [<span class="hljs-built_in">string</span>, Bit] | Bytes;</pre></div>
+        
+      
+        
+        <p>Represents a byte(s) in memory record.</p>
+
+        
+          <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Bytes <span class="hljs-keyword">implements</span> IType {
+  <span class="hljs-keyword">static</span> define(bits: IBitDefinition[], <span class="hljs-keyword">type</span>: IType, name: <span class="hljs-built_in">string</span> = <span class="hljs-string">""</span>): Bytes {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Bytes(bits, <span class="hljs-keyword">type</span>, name);
+  }
+
+  size = <span class="hljs-number">0</span>;
+  off = <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">type</span>: IType;
+  name: <span class="hljs-built_in">string</span>;
+
+  bits: IByteField[] = [];
+
+  map: { [s: <span class="hljs-built_in">string</span>]: IByteField } = {};
+
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params">bits: IBitDefinition[], <span class="hljs-keyword">type</span>: IType, name: <span class="hljs-built_in">string</span></span>) {
+    <span class="hljs-keyword">this</span>.addBits(bits);
+    <span class="hljs-keyword">this</span>.size = <span class="hljs-keyword">type</span>.size;
+    <span class="hljs-keyword">this</span>.name = name;
+    <span class="hljs-keyword">this</span>.type = <span class="hljs-keyword">type</span>;
+  }
+
+  <span class="hljs-keyword">protected</span> addBits(bits: IBitDefinition[]) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> bit of bits) {
+      <span class="hljs-keyword">var</span> bitDef = bit <span class="hljs-keyword">as</span> [<span class="hljs-built_in">string</span>, Bit];
+      <span class="hljs-keyword">var</span> [name, bitType] = bitDef;
+      <span class="hljs-keyword">if</span> (!(bitType <span class="hljs-keyword">instanceof</span> Bit))
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"Bytes can only contain bits"</span>);
+      <span class="hljs-keyword">var</span> entry: IByteField = {
+        <span class="hljs-keyword">type</span>: bitType,
+        offset: <span class="hljs-keyword">this</span>.off,
+        name: name
+      };
+      <span class="hljs-keyword">this</span>.bits.push(entry);
+      <span class="hljs-keyword">this</span>.map[name] = entry;
+      <span class="hljs-keyword">this</span>.off += bitType.size;
     }
+  }
+
+  <span class="hljs-keyword">protected</span> padBit(bit: <span class="hljs-built_in">string</span>, size: <span class="hljs-built_in">number</span>) {
+    <span class="hljs-keyword">while</span> (bit.length &lt; size) bit = <span class="hljs-string">"0"</span> + bit;
+    <span class="hljs-keyword">return</span> bit;
+  }
+
+  pack(p: Pointer, data: <span class="hljs-built_in">any</span>) {
+    <span class="hljs-keyword">var</span> fp = p.clone();
+    <span class="hljs-keyword">var</span> binaryNum =
+      <span class="hljs-string">"0b"</span> +
+      <span class="hljs-keyword">this</span>.bits
+        .map(<span class="hljs-function"><span class="hljs-params">b</span> =&gt;</span> {
+          <span class="hljs-keyword">let</span> d = data[b.name];
+          d = <span class="hljs-keyword">this</span>.padBit(d, b.type.size);
+          <span class="hljs-keyword">return</span> d.toString(<span class="hljs-number">2</span>);
+        })
+        .join(<span class="hljs-string">""</span>);
+    <span class="hljs-keyword">this</span>.type.pack(fp, <span class="hljs-built_in">Number</span>(binaryNum));
+    fp.off = <span class="hljs-keyword">this</span>.size;
+  }
+
+  unpack(p: Pointer): <span class="hljs-built_in">any</span> {
+    <span class="hljs-keyword">var</span> data: <span class="hljs-built_in">any</span> = {};
+    <span class="hljs-keyword">var</span> fp = p.clone();
+    <span class="hljs-keyword">var</span> binaryNum = <span class="hljs-keyword">this</span>.type.unpack(fp);
+    <span class="hljs-keyword">if</span> (!(<span class="hljs-keyword">typeof</span> binaryNum === <span class="hljs-string">"number"</span>))
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"invalid pointer passed to unpack function"</span>);
+    binaryNum = binaryNum.toString(<span class="hljs-number">2</span>);
+    <span class="hljs-keyword">let</span> offset = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> bit of <span class="hljs-keyword">this</span>.bits) {
+      <span class="hljs-keyword">var</span> decimalNum = binaryNum.slice(offset, offset + bit.type.size);
+      decimalNum = <span class="hljs-string">"0b"</span> + <span class="hljs-keyword">this</span>.padBit(decimalNum, bit.type.size);
+      decimalNum = <span class="hljs-built_in">Number</span>(decimalNum);
+      data[bit.name] = <span class="hljs-built_in">Number</span>(decimalNum.toString(<span class="hljs-number">10</span>));
+      offset += bit.type.size;
+    }
+    <span class="hljs-keyword">return</span> data;
+  }
 }</pre></div>
         
       
@@ -321,34 +451,35 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">export</span> <span class="hljs-keyword">class</span> Variable {
-    <span class="hljs-keyword">type</span>: IType;
-    pointer: Pointer;
+  <span class="hljs-keyword">type</span>: IType;
+  pointer: Pointer;
 
-    <span class="hljs-keyword">constructor</span>(type: IType, pointer: Pointer) {
-        <span class="hljs-keyword">this</span>.type = <span class="hljs-keyword">type</span>;
-        <span class="hljs-keyword">this</span>.pointer = pointer;
-    }
+  <span class="hljs-keyword">constructor</span>(<span class="hljs-params"><span class="hljs-keyword">type</span>: IType, pointer: Pointer</span>) {
+    <span class="hljs-keyword">this</span>.type = <span class="hljs-keyword">type</span>;
+    <span class="hljs-keyword">this</span>.pointer = pointer;
+  }
 
-    pack(data: <span class="hljs-built_in">any</span>) {
-        <span class="hljs-keyword">this</span>.type.pack(<span class="hljs-keyword">this</span>.pointer, data);
-    }
+  pack(data: <span class="hljs-built_in">any</span>) {
+    <span class="hljs-keyword">this</span>.type.pack(<span class="hljs-keyword">this</span>.pointer, data);
+  }
 
-    unpack(length?): <span class="hljs-built_in">any</span> {
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.type.unpack(<span class="hljs-keyword">this</span>.pointer, length);
-    }
+  unpack(length?): <span class="hljs-built_in">any</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.type.unpack(<span class="hljs-keyword">this</span>.pointer, length);
+  }
 
-    cast(newtype: IType) {
-        <span class="hljs-keyword">this</span>.type = newtype;
-    }
+  cast(newtype: IType) {
+    <span class="hljs-keyword">this</span>.type = newtype;
+  }
 
-    <span class="hljs-string">'get'</span>(name: <span class="hljs-built_in">string</span>) {
-        <span class="hljs-keyword">if</span>(!(<span class="hljs-keyword">this</span>.type <span class="hljs-keyword">instanceof</span> Struct)) <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Variable is not a `Struct`.'</span>);
-        <span class="hljs-keyword">var</span> struct = <span class="hljs-keyword">this</span>.type as Struct;
-        <span class="hljs-keyword">var</span> field = struct.map[name] as IStructField;
-        <span class="hljs-keyword">var</span> p = <span class="hljs-keyword">this</span>.pointer.clone();
-        p.off += field.offset;
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Variable(field.type, p);
-    }
+  <span class="hljs-keyword">get</span>(name: <span class="hljs-built_in">string</span>) {
+    <span class="hljs-keyword">if</span> (!(<span class="hljs-keyword">this</span>.type <span class="hljs-keyword">instanceof</span> Struct))
+      <span class="hljs-keyword">throw</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">"Variable is not a `Struct`."</span>);
+    <span class="hljs-keyword">var</span> struct = <span class="hljs-keyword">this</span>.type <span class="hljs-keyword">as</span> Struct;
+    <span class="hljs-keyword">var</span> field = struct.map[name] <span class="hljs-keyword">as</span> IStructField;
+    <span class="hljs-keyword">var</span> p = <span class="hljs-keyword">this</span>.pointer.clone();
+    p.off += field.offset;
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Variable(field.type, p);
+  }
 }</pre></div>
         
       
@@ -358,14 +489,30 @@ and which know how to pack and unpack themselves into <code>Buffer</code>s.</p>
 
         
           <div class='highlight'><pre><span class="hljs-keyword">var</span> bp = Buffer.prototype;
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> i8   = Primitive.define(<span class="hljs-number">1</span>, bp.writeInt8,     bp.readInt8);
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> ui8  = Primitive.define(<span class="hljs-number">1</span>, bp.writeUInt8,    bp.readUInt8);
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> i16  = Primitive.define(<span class="hljs-number">2</span>, bp.writeInt16LE,  bp.readInt16LE);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> b1 = Bit.define(<span class="hljs-number">1</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> b2 = Bit.define(<span class="hljs-number">2</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> b3 = Bit.define(<span class="hljs-number">3</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> b4 = Bit.define(<span class="hljs-number">4</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> b5 = Bit.define(<span class="hljs-number">5</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> b6 = Bit.define(<span class="hljs-number">6</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> b7 = Bit.define(<span class="hljs-number">7</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> i8 = Primitive.define(<span class="hljs-number">1</span>, bp.writeInt8, bp.readInt8);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> ui8 = Primitive.define(<span class="hljs-number">1</span>, bp.writeUInt8, bp.readUInt8);
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> i16 = Primitive.define(<span class="hljs-number">2</span>, bp.writeInt16LE, bp.readInt16LE);
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> ui16 = Primitive.define(<span class="hljs-number">2</span>, bp.writeUInt16LE, bp.readUInt16LE);
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> i32  = Primitive.define(<span class="hljs-number">4</span>, bp.writeInt32LE,  bp.readInt32LE);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> i32 = Primitive.define(<span class="hljs-number">4</span>, bp.writeInt32LE, bp.readInt32LE);
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> ui32 = Primitive.define(<span class="hljs-number">4</span>, bp.writeUInt32LE, bp.readUInt32LE);
-<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> i64  = List.define(i32, <span class="hljs-number">2</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> i64 = List.define(i32, <span class="hljs-number">2</span>);
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> ui64 = List.define(ui32, <span class="hljs-number">2</span>);
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> bi16 = Primitive.define(<span class="hljs-number">2</span>, bp.writeInt16BE, bp.readInt16BE);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> bui16 = Primitive.define(<span class="hljs-number">2</span>, bp.writeUInt16BE, bp.readUInt16BE);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> bi32 = Primitive.define(<span class="hljs-number">4</span>, bp.writeInt32BE, bp.readInt32BE);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> bui32 = Primitive.define(<span class="hljs-number">4</span>, bp.writeUInt32BE, bp.readUInt32BE);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> bi64 = List.define(bi32, <span class="hljs-number">2</span>);
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> bui64 = List.define(bui32, <span class="hljs-number">2</span>);
+
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">var</span> t_void = Primitive.define(<span class="hljs-number">0</span>); <span class="hljs-comment">// `0` means variable length, like `void*`.</span></pre></div>
         
       

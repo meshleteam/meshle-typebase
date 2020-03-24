@@ -14,21 +14,54 @@ struct address {
 Define the same binary `struct` in JavaScript and pack/unpack data to `Buffer`:
 
 ```js
-var t = require('typebase');
+const {
+  List,
+  Struct,
+  Bytes,
+  ui8,
+  b1,
+  b7,
+  Pointer,
+  ui16
+} = require("../typebase.js");
 
-var address = t.Struct.define([
-    ['port', t.i32],
-    ['ip', t.List.define(t.ui8, 4)]
+const Status = Bytes.define(
+  [
+    ["powerOn", b1],
+    ["timerEnabled", b1],
+    ["errorFlag", b1],
+    ["presenceSensor", b1],
+    ["geoData", b1],
+    ["deviceTime", b1],
+    ["playerState", b7]
+  ],
+  ui16,
+  "status"
+);
+
+const Test = Struct.define([
+  ["status", Status],
+  ["host", ui8],
+  ["ip", List.define(ui8, 4)]
 ]);
-
-var p = new t.Pointer(new Buffer(address.size), 0);
-var host = {
-    port: 8080,
-    ip: [127, 0, 0, 1]
+const status = {
+  powerOn: 1,
+  timerEnabled: 1,
+  errorFlag: 1,
+  presenceSensor: 1,
+  geoData: 1,
+  deviceTime: 0,
+  playerState: 100
 };
-address.pack(p, host);
-var unpacked = address.unpack(p);
+const test = {
+  status,
+  host: 128,
+  ip: [127, 0, 0, 1]
+};
 
+const p = new Pointer(new Buffer(Test.size), 0);
+Test.pack(p, test);
+const unpacked = Test.unpack(p);
 
-console.log(unpacked);
+console.log({ p, unpacked });
 ```

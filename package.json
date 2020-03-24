@@ -21,5 +21,8 @@
   "main": "typebase.js",
   "scripts": {
     "docs": "docco --output ./docs --layout linear typebase.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^13.9.3"
   }
 }
