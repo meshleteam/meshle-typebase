@@ -1,11 +1,22 @@
 # `struct` for Node.js
 
-Read `docco` docs at [here](http://streamich.github.io/typebase/). `npm` package is [here](https://www.npmjs.com/package/typebase).
+Original Fork of [streamich/typebase](https://github.com/streamich/typebase#readme)
+
+Read `docco` docs at [here](https://jfamousket.github.io/meshle-typebase/).
+
+```
+npm install https://github.com/jfamousket/meshle-typebase
+```
+
+```
+yarn add https://github.com/jfamousket/meshle-typebase
+```
 
 Consider a `C/C++` structure:
 
 ```c
 struct address {
+    ...
     int port,
     unsigned char ip[4],
 }

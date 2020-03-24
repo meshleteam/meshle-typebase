@@ -1,15 +1,15 @@
 const {
   List,
   Struct,
-  Bytes,
+  Byte,
   ui8,
   b1,
   b2,
   Pointer,
   ui16
-} = require("../typebase.js");
+} = require("../index.js");
 
-const Status = Bytes.define(
+const Status = Byte.define(
   [
     ["powerOn", b1],
     ["timerEnabled", b1],
