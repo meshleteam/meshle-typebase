@@ -119,6 +119,9 @@
 // And, finally, `Variable` is an object that has an **address in memory** represented by `Pointer` and a
 // **type** represented by one of `Primitive`, `List` or `Struct`.
 exports.__esModule = true;
+// This line is needed to use buffer for example in a react native app
+// comment out this line if not needed
+var buffer_1 = require("buffer/");
 // ## Pointer
 //
 // We can find out a physical memory pointer of a `Buffer` or `ArrayBuffer` objects using [libsys](http://www.npmjs.com/package/libsys).
@@ -414,7 +417,7 @@ exports.Variable = Variable;
 // ## Basic Types
 //
 // Define basic types and export as part of the library.
-var bp = Buffer.prototype;
+var bp = buffer_1.Buffer.prototype;
 exports.b1 = Bit.define(1);
 exports.b2 = Bit.define(2);
 exports.b3 = Bit.define(3);

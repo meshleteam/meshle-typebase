@@ -1,5 +1,5 @@
 {
-  "name": "typebase",
+  "name": "meshle-typebase",
   "description": "Package and unpackage binary structs",
   "version": "1.0.2",
   "keywords": [
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/streamich/typebase"
+    "url": "https://github.com/jfamousket/meshle-typebase"
   },
   "main": "index.js",
   "scripts": {
@@ -26,5 +26,8 @@
   },
   "devDependencies": {
     "@types/node": "^13.9.3"
+  },
+  "dependencies": {
+    "buffer": "^5.5.0"
   }
 }

@@ -1,6 +1,6 @@
 // # Typebase
 //
-// [typebase](http://www.npmjs.com/package/typebase) provides C-like Types, Structs and Pointers for JavaScript.
+// [typebase](https://github.com/jfamousket/meshle-typebase) provides C-like Types, Structs and Pointers for JavaScript.
 //
 // Let's jump straight into example. Consider the following `C/C++` *stuct*:
 //
@@ -117,6 +117,10 @@
 //
 // And, finally, `Variable` is an object that has an **address in memory** represented by `Pointer` and a
 // **type** represented by one of `Primitive`, `List` or `Struct`.
+
+// This line is needed to use buffer for example in a react native app
+// comment out this line if not needed
+import { Buffer } from "buffer/";
 
 // ## Pointer
 //

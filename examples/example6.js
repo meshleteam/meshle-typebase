@@ -8,6 +8,7 @@ const {
   Pointer,
   ui16
 } = require("../index.js");
+const Buffer = require("buffer/").Buffer;
 
 const Status = Byte.define(
   [
@@ -24,7 +25,8 @@ const Status = Byte.define(
 );
 
 const Test = Struct.define([
-  ["status", Status][("host", ui8)],
+  ["status", Status],
+  ["host", ui8],
   ["ip", List.define(ui8, 4)]
 ]);
 const status = {
@@ -39,6 +41,7 @@ const status = {
 const test = {
   status,
   host: 128,
+  home: 123,
   ip: [127, 0, 0, 1]
 };
 
