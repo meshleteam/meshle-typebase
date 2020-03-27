@@ -6,19 +6,21 @@ const {
   b1,
   b2,
   Pointer,
-  ui16
+  Variable,
+  ui16,
+  b7
 } = require("../index.js");
 const Buffer = require("buffer/").Buffer;
 
 const Status = Byte.define(
   [
     ["powerOn", b1],
-    ["timerEnabled", b1],
-    ["errorFlag", b1],
-    ["presenceSensor", b1],
-    ["geoData", b1],
-    ["deviceTime", b1],
-    ["playerState", b2]
+    ["timerEnabled", b7]
+    // ["errorFlag", b1],
+    // ["presenceSensor", b1],
+    // ["geoData", b1],
+    // ["deviceTime", b1],
+    // ["playerState", b2]
   ],
   ui8,
   "status"
@@ -31,12 +33,12 @@ const Test = Struct.define([
 ]);
 const status = {
   powerOn: 1,
-  timerEnabled: 1,
-  errorFlag: 1,
-  presenceSensor: 1,
-  geoData: 1,
-  deviceTime: 0,
-  playerState: 3
+  timerEnabled: 1
+  // errorFlag: 1,
+  // presenceSensor: 1,
+  // geoData: 1,
+  // deviceTime: 0,
+  // playerState: 3
 };
 const test = {
   status,
@@ -44,9 +46,10 @@ const test = {
   home: 123,
   ip: [127, 0, 0, 1]
 };
-
+console.log({ Test });
 const p = new Pointer(new Buffer(Test.size), 0);
-Test.pack(p, test);
-const unpacked = Test.unpack(p);
+const v = new Variable(Test, p);
+v.pack(test);
+const unpacked = v.unpack(p);
 
 console.log({ p, unpacked });

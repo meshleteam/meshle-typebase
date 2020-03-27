@@ -1,7 +1,7 @@
 "use strict";
 // # Typebase
 //
-// [typebase](http://www.npmjs.com/package/typebase) provides C-like Types, Structs and Pointers for JavaScript.
+// [typebase](https://github.com/jfamousket/meshle-typebase) provides C-like Types, Structs and Pointers for JavaScript.
 //
 // Let's jump straight into example. Consider the following `C/C++` *stuct*:
 //
@@ -219,6 +219,7 @@ var List = /** @class */ (function () {
         if (!length)
             length = values.length;
         length = Math.min(length, values.length);
+        console.log({ length: length });
         for (var i = 0; i < length; i++) {
             this.type.pack(valp, values[i]);
             valp.off += this.type.size;
@@ -346,6 +347,7 @@ var Byte = /** @class */ (function () {
         }
     };
     Byte.prototype.padBit = function (bit, size) {
+        bit = bit.toString();
         while (bit.length < size)
             bit = "0" + bit;
         return bit;
@@ -358,9 +360,11 @@ var Byte = /** @class */ (function () {
                 .map(function (b) {
                 var d = data[b.name];
                 d = _this.padBit(d, b.type.size);
+                console.log("padded bit", d, d.toString(2), b);
                 return d.toString(2);
             })
                 .join("");
+        console.log(binaryNum);
         this.type.pack(fp, Number(binaryNum));
         fp.off = this.size;
     };

@@ -237,6 +237,7 @@ export class List implements IType {
 
     if (!length) length = values.length;
     length = Math.min(length, values.length);
+    console.log({ length });
     for (var i = 0; i < length; i++) {
       this.type.pack(valp, values[i]);
       valp.off += this.type.size;
@@ -379,6 +380,7 @@ export class Byte implements IType {
   }
 
   protected padBit(bit: string, size: number) {
+    bit = bit.toString();
     while (bit.length < size) bit = "0" + bit;
     return bit;
   }
