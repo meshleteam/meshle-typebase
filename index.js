@@ -399,15 +399,14 @@ var Byte = /** @class */ (function () {
         var binaryNum = this.type.unpack(fp);
         if (!(typeof binaryNum === "number"))
             throw new Error("invalid pointer passed to unpack function");
-        binaryNum = binaryNum.toString(2);
-        var offset = 0;
+        binaryNum = this.padBit(binaryNum.toString(2), this.type.size * 8);
         for (var _i = 0, _a = this.bits; _i < _a.length; _i++) {
             var bit = _a[_i];
-            var decimalNum = binaryNum.slice(offset, offset + bit.type.size);
+            var decimalNum = binaryNum.slice(fp.off, fp.off + bit.type.size);
             decimalNum = "0b" + this.padBit(decimalNum, bit.type.size);
             decimalNum = Number(decimalNum);
             data[bit.name] = Number(decimalNum.toString(10));
-            offset += bit.type.size;
+            fp.off += bit.type.size;
         }
         return data;
     };
@@ -469,4 +468,6 @@ exports.bui32 = Primitive.define(4, bp.writeUInt32BE, bp.readUInt32BE);
 exports.bi64 = List.define(exports.bi32, 2);
 exports.bui64 = List.define(exports.bui32, 2);
 exports.sui16 = String.define("utf8", exports.ui16, bp.write, bp.toString);
+exports.sui32 = String.define("utf8", exports.ui32, bp.write, bp.toString);
+exports.sui8 = String.define("utf8", exports.ui8, bp.write, bp.toString);
 exports.t_void = Primitive.define(0); // `0` means variable length, like `void*`.

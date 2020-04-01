@@ -458,14 +458,13 @@ export class Byte implements IType {
     var binaryNum = this.type.unpack(fp);
     if (!(typeof binaryNum === "number"))
       throw new Error("invalid pointer passed to unpack function");
-    binaryNum = binaryNum.toString(2);
-    let offset = 0;
+    binaryNum = this.padBit(binaryNum.toString(2), this.type.size * 8);
     for (var bit of this.bits) {
-      var decimalNum = binaryNum.slice(offset, offset + bit.type.size);
+      var decimalNum = binaryNum.slice(fp.off, fp.off + bit.type.size);
       decimalNum = "0b" + this.padBit(decimalNum, bit.type.size);
       decimalNum = Number(decimalNum);
       data[bit.name] = Number(decimalNum.toString(10));
-      offset += bit.type.size;
+      fp.off += bit.type.size;
     }
     return data;
   }
