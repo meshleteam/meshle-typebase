@@ -176,6 +176,34 @@ var Primitive = /** @class */ (function () {
     return Primitive;
 }());
 exports.Primitive = Primitive;
+var String = /** @class */ (function () {
+    function String() {
+        this.size = 0;
+        this.encoding = "utf8";
+    }
+    /* We do not define `offset` at construction because the
+         offset property is set by a parent Struct. */
+    String.define = function (encoding, type, onPack, onUnpack, name) {
+        if (onPack === void 0) { onPack = (function () { }); }
+        if (onUnpack === void 0) { onUnpack = (function () { }); }
+        if (name === void 0) { name = ""; }
+        var field = new String();
+        field.encoding = encoding;
+        field.size = type.size;
+        field.name = name;
+        field.onPack = onPack;
+        field.onUnpack = onUnpack;
+        return field;
+    };
+    String.prototype.pack = function (p, value) {
+        this.onPack.call(p.buf, value, p.off, this.size, this.encoding);
+    };
+    String.prototype.unpack = function (p) {
+        return this.onUnpack.call(p.buf, this.encoding, p.off, p.off + this.size);
+    };
+    return String;
+}());
+exports.String = String;
 // ### Bit
 // A `Bit` is the smallest, most basic data type it can only be used inside `Bytes`
 var Bit = /** @class */ (function () {
@@ -219,7 +247,6 @@ var List = /** @class */ (function () {
         if (!length)
             length = values.length;
         length = Math.min(length, values.length);
-        console.log({ length: length });
         for (var i = 0; i < length; i++) {
             this.type.pack(valp, values[i]);
             valp.off += this.type.size;
@@ -360,13 +387,11 @@ var Byte = /** @class */ (function () {
                 .map(function (b) {
                 var d = data[b.name];
                 d = _this.padBit(d, b.type.size);
-                console.log("padded bit", d, d.toString(2), b);
                 return d.toString(2);
             })
                 .join("");
-        console.log(binaryNum);
         this.type.pack(fp, Number(binaryNum));
-        fp.off = this.size;
+        fp.off += this.size;
     };
     Byte.prototype.unpack = function (p) {
         var data = {};
@@ -443,4 +468,5 @@ exports.bi32 = Primitive.define(4, bp.writeInt32BE, bp.readInt32BE);
 exports.bui32 = Primitive.define(4, bp.writeUInt32BE, bp.readUInt32BE);
 exports.bi64 = List.define(exports.bi32, 2);
 exports.bui64 = List.define(exports.bui32, 2);
+exports.sui16 = String.define("utf8", exports.ui16, bp.write, bp.toString);
 exports.t_void = Primitive.define(0); // `0` means variable length, like `void*`.

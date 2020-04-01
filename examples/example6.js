@@ -8,7 +8,8 @@ const {
   Pointer,
   Variable,
   ui16,
-  b7
+  b7,
+  sui16
 } = require("../index.js");
 const Buffer = require("buffer/").Buffer;
 
@@ -28,8 +29,9 @@ const Status = Byte.define(
 
 const Test = Struct.define([
   ["status", Status],
-  ["host", ui8],
-  ["ip", List.define(ui8, 4)]
+  ["strTest", sui16],
+  ["host", ui16]
+  // ["ip", List.define(ui8, 4)]
 ]);
 const status = {
   powerOn: 1,
@@ -42,8 +44,8 @@ const status = {
 };
 const test = {
   status,
+  strTest: "VP",
   host: 128,
-  home: 123,
   ip: [127, 0, 0, 1]
 };
 console.log({ Test });

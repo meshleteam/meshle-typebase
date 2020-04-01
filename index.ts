@@ -194,6 +194,58 @@ export class Primitive implements IType {
   }
 }
 
+// ### String
+
+// `String`s are used to pack strings into the buffer
+// encoding specifies how the encoding format used for the packing
+
+// String encodings available
+
+export type encoding =
+  | "utf8"
+  | "utf16le"
+  | "latin1"
+  | "base64"
+  | "hex"
+  | "ascii"
+  | "binary"
+  | "ucs2";
+
+export class String implements IType {
+  /* We do not define `offset` at construction because the
+       offset property is set by a parent Struct. */
+  static define(
+    encoding: encoding,
+    type: IType,
+    onPack = (() => {}) as any,
+    onUnpack = (() => {}) as any,
+    name: string = ""
+  ) {
+    var field = new String();
+    field.encoding = encoding;
+    field.size = type.size;
+    field.name = name;
+    field.onPack = onPack;
+    field.onUnpack = onUnpack;
+    return field;
+  }
+
+  size = 0;
+  encoding: encoding = "utf8";
+  name: string;
+
+  onPack: (value, offset) => void;
+  onUnpack: (offset: number) => any;
+
+  pack(p: Pointer, value: any) {
+    this.onPack.call(p.buf, value, p.off, this.size, this.encoding);
+  }
+
+  unpack(p: Pointer): any {
+    return this.onUnpack.call(p.buf, this.encoding, p.off, p.off + this.size);
+  }
+}
+
 // ### Bit
 
 // A `Bit` is the smallest, most basic data type it can only be used inside `Bytes`
@@ -237,7 +289,7 @@ export class List implements IType {
 
     if (!length) length = values.length;
     length = Math.min(length, values.length);
-    console.log({ length });
+
     for (var i = 0; i < length; i++) {
       this.type.pack(valp, values[i]);
       valp.off += this.type.size;
@@ -397,7 +449,7 @@ export class Byte implements IType {
         })
         .join("");
     this.type.pack(fp, Number(binaryNum));
-    fp.off = this.size;
+    fp.off += this.size;
   }
 
   unpack(p: Pointer): any {
@@ -481,5 +533,9 @@ export var bi32 = Primitive.define(4, bp.writeInt32BE, bp.readInt32BE);
 export var bui32 = Primitive.define(4, bp.writeUInt32BE, bp.readUInt32BE);
 export var bi64 = List.define(bi32, 2);
 export var bui64 = List.define(bui32, 2);
+
+export var sui16 = String.define("utf8", ui16, bp.write, bp.toString);
+export var sui32 = String.define("utf8", ui32, bp.write, bp.toString);
+export var sui8 = String.define("utf8", ui8, bp.write, bp.toString);
 
 export var t_void = Primitive.define(0); // `0` means variable length, like `void*`.
