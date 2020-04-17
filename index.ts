@@ -341,7 +341,7 @@ export class Struct implements IType {
       /* Inherit properties from another struct */
       if (field instanceof Struct) {
         var parent = field as Struct;
-        var parentfields = parent.fields.map(function(field: IStructField) {
+        var parentfields = parent.fields.map(function (field: IStructField) {
           return [field.type, field.name];
         });
         this.addFields(parentfields as [string, IType][]);
@@ -353,7 +353,7 @@ export class Struct implements IType {
       var entry: IStructField = {
         type: struct,
         offset: this.size,
-        name: name
+        name: name,
       };
       this.fields.push(entry);
       this.map[name] = entry;
@@ -423,7 +423,7 @@ export class Byte implements IType {
       var entry: IByteField = {
         type: bitType,
         offset: this.off,
-        name: name
+        name: name,
       };
       this.bits.push(entry);
       this.map[name] = entry;
@@ -442,12 +442,14 @@ export class Byte implements IType {
     var binaryNum =
       "0b" +
       this.bits
-        .map(b => {
+        .map((b) => {
           let d = data[b.name];
+          d = Number(d).toString(2);
           d = this.padBit(d, b.type.size);
           return d.toString(2);
         })
         .join("");
+    console.log(binaryNum);
     this.type.pack(fp, Number(binaryNum));
     fp.off += this.size;
   }

@@ -386,10 +386,12 @@ var Byte = /** @class */ (function () {
             this.bits
                 .map(function (b) {
                 var d = data[b.name];
+                d = Number(d).toString(2);
                 d = _this.padBit(d, b.type.size);
                 return d.toString(2);
             })
                 .join("");
+        console.log(binaryNum);
         this.type.pack(fp, Number(binaryNum));
         fp.off += this.size;
     };
