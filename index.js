@@ -391,25 +391,26 @@ var Byte = /** @class */ (function () {
                 return d.toString(2);
             })
                 .join("");
-        console.log(binaryNum);
         this.type.pack(fp, Number(binaryNum));
         fp.off += this.size;
     };
     Byte.prototype.unpack = function (p) {
         var data = {};
         var fp = p.clone();
+        var offset = 0;
         var binaryNum = this.type.unpack(fp);
         if (!(typeof binaryNum === "number"))
             throw new Error("invalid pointer passed to unpack function");
         binaryNum = this.padBit(binaryNum.toString(2), this.type.size * 8);
         for (var _i = 0, _a = this.bits; _i < _a.length; _i++) {
             var bit = _a[_i];
-            var decimalNum = binaryNum.slice(fp.off, fp.off + bit.type.size);
+            var decimalNum = binaryNum.slice(offset, offset + bit.type.size);
             decimalNum = "0b" + this.padBit(decimalNum, bit.type.size);
             decimalNum = Number(decimalNum);
             data[bit.name] = Number(decimalNum.toString(10));
-            fp.off += bit.type.size;
+            offset += bit.type.size;
         }
+        fp.off += this.type.size;
         return data;
     };
     return Byte;
