@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+if [[ -z $1 ]]; then
+    echo "Please pass a version (see https://classic.yarnpkg.com/en/docs/cli/version/#toc-commands)"
+    exit
+fi
+
+if [ "$1" = "patch" ] || [ "$1" = "major" ] || [ "$1" = "minor" ]; then
+    yarn version --$1
+elif [[ $1 == v* ]]; then
+    version=$1
+    version=${version:1}
+    yarn version --new-version $version
+else 
+    echo "Invalid version passed (see https://classic.yarnpkg.com/en/docs/cli/version/#toc-commands)"
+    exit
+fi
+git push --tags origin master 
