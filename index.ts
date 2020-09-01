@@ -324,6 +324,7 @@ export class Struct implements IType {
     return new Struct(fields, name);
   }
 
+  fieldsDefinition: IFieldDefinition[];
   size = 0;
   name: string;
 
@@ -333,7 +334,10 @@ export class Struct implements IType {
 
   constructor(fields: IFieldDefinition[], name: string) {
     this.addFields(fields);
+    console.log(name);
+
     this.name = name;
+    this.fieldsDefinition = fields;
   }
 
   protected addFields(fields: IFieldDefinition[]) {
@@ -403,6 +407,7 @@ export class Byte implements IType {
   type: IType;
   name: string;
 
+  bitsDefinition: IBitDefinition[];
   bits: IByteField[] = [];
 
   map: { [s: string]: IByteField } = {};
@@ -412,6 +417,7 @@ export class Byte implements IType {
     this.size = type.size;
     this.name = name;
     this.type = type;
+    this.bitsDefinition = bits;
   }
 
   protected addBits(bits: IBitDefinition[]) {

@@ -8,7 +8,7 @@ const {
   Variable,
   ui16,
   b2,
-  sui16
+  sui16,
 } = require("../index.js");
 const Buffer = require("buffer/").Buffer;
 
@@ -20,18 +20,24 @@ const Status = Byte.define(
     ["presenceSensor", b1],
     ["errorFlag", b1],
     ["timerEnabled", b1],
-    ["powerOn", b1]
+    ["powerOn", b1],
   ],
   ui8,
   "status"
 );
 
-const Test = Struct.define([
+const header = Struct.define([
+  ["type", ui8],
   ["status", Status],
+]);
+
+const Test = Struct.define([
+  ...header.fieldsDefinition,
   ["strTest", sui16],
   ["host", ui16],
-  ["ip", List.define(ui8, 4)]
+  ["ip", List.define(ui8, 4)],
 ]);
+
 const status = {
   powerOn: 0,
   timerEnabled: 0,
@@ -39,13 +45,14 @@ const status = {
   presenceSensor: 0,
   geoData: 0,
   deviceTime: 1,
-  playerState: 0
+  playerState: 0,
 };
 const test = {
+  type: 0,
   status,
   strTest: "VP",
   host: 128,
-  ip: [127, 0, 0, 1]
+  ip: [127, 0, 0, 1],
 };
 console.log({ Test });
 const p = new Pointer(new Buffer(Test.size), 0);

@@ -119,6 +119,7 @@
 // And, finally, `Variable` is an object that has an **address in memory** represented by `Pointer` and a
 // **type** represented by one of `Primitive`, `List` or `Struct`.
 exports.__esModule = true;
+exports.t_void = exports.sui8 = exports.sui32 = exports.sui16 = exports.bui64 = exports.bi64 = exports.bui32 = exports.bi32 = exports.bui16 = exports.bi16 = exports.ui64 = exports.i64 = exports.ui32 = exports.i32 = exports.ui16 = exports.i16 = exports.ui8 = exports.i8 = exports.b7 = exports.b6 = exports.b5 = exports.b4 = exports.b3 = exports.b2 = exports.b1 = exports.Variable = exports.Byte = exports.IByteField = exports.Struct = exports.IStructField = exports.List = exports.Bit = exports.String = exports.Primitive = exports.Pointer = void 0;
 // This line is needed to use buffer for example in a react native app
 // comment out this line if not needed
 var buffer_1 = require("buffer/");
@@ -280,7 +281,9 @@ var Struct = /** @class */ (function () {
         this.fields = [];
         this.map = {};
         this.addFields(fields);
+        console.log(name);
         this.name = name;
+        this.fieldsDefinition = fields;
     }
     Struct.define = function (fields, name) {
         if (name === void 0) { name = ""; }
@@ -351,6 +354,7 @@ var Byte = /** @class */ (function () {
         this.size = type.size;
         this.name = name;
         this.type = type;
+        this.bitsDefinition = bits;
     }
     Byte.define = function (bits, type, name) {
         if (name === void 0) { name = ""; }
