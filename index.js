@@ -358,6 +358,11 @@ var Byte = /** @class */ (function () {
     }
     Byte.define = function (bits, type, name) {
         if (name === void 0) { name = ""; }
+        if (typeof bits === "number") {
+            if (type.size !== bits / 8)
+                throw new Error("Too many bits for " + type.size + " byte(s)");
+            bits = new Array(bits).fill(0).map(function (v, i) { return ["" + i, exports.b1]; });
+        }
         return new Byte(bits, type, name);
     };
     Byte.prototype.addBits = function (bits) {

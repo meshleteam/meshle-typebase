@@ -121,6 +121,7 @@
 // This line is needed to use buffer for example in a react native app
 // comment out this line if not needed
 import { Buffer } from "buffer/";
+import { isNumber } from "util";
 
 // ## Pointer
 //
@@ -398,7 +399,16 @@ export type IBitDefinition = [string, Bit] | Byte;
 // Represents a byte or bytes in memory record
 // upto 8 bytes can be represented using `Byte`, this depends on the type passed to the define function
 export class Byte implements IType {
-  static define(bits: IBitDefinition[], type: IType, name: string = ""): Byte {
+  static define(
+    bits: IBitDefinition[] | number,
+    type: IType,
+    name: string = ""
+  ): Byte {
+    if (typeof bits === "number") {
+      if (type.size !== bits / 8)
+        throw new Error(`Too many bits for ${type.size} byte(s)`);
+      bits = new Array(bits).fill(0).map((v, i) => [`${i}`, b1]);
+    }
     return new Byte(bits, type, name);
   }
 
