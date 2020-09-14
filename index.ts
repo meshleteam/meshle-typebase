@@ -500,13 +500,13 @@ export class ByteArr extends Byte {
   }
 
   unpack(p: Pointer) {
-    return Object.values(super.unpack(p));
+    return Object.values(super.unpack(p)).reverse();
   }
 
   pack(p: Pointer, data: Array<any>) {
     super.pack(
       p,
-      data.reduce((a, c, i) => {
+      data.reverse().reduce((a, c, i) => {
         a[`${i}`] = c;
         return a;
       }, {})

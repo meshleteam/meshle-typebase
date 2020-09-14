@@ -1,7 +1,7 @@
 {
   "name": "meshle-typebase",
   "description": "Package and unpackage binary structs",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "keywords": [
     "struct",
     "type",

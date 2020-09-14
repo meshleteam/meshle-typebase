@@ -449,10 +449,10 @@ var ByteArr = /** @class */ (function (_super) {
         return new ByteArr(new Array(bits).fill(0).map(function (v, i) { return ["" + i, exports.b1]; }), type, name);
     };
     ByteArr.prototype.unpack = function (p) {
-        return Object.values(_super.prototype.unpack.call(this, p));
+        return Object.values(_super.prototype.unpack.call(this, p)).reverse();
     };
     ByteArr.prototype.pack = function (p, data) {
-        _super.prototype.pack.call(this, p, data.reduce(function (a, c, i) {
+        _super.prototype.pack.call(this, p, data.reverse().reduce(function (a, c, i) {
             a["" + i] = c;
             return a;
         }, {}));
