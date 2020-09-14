@@ -118,8 +118,21 @@
 //
 // And, finally, `Variable` is an object that has an **address in memory** represented by `Pointer` and a
 // **type** represented by one of `Primitive`, `List` or `Struct`.
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 exports.__esModule = true;
-exports.t_void = exports.sui8 = exports.sui32 = exports.sui16 = exports.bui64 = exports.bi64 = exports.bui32 = exports.bi32 = exports.bui16 = exports.bi16 = exports.ui64 = exports.i64 = exports.ui32 = exports.i32 = exports.ui16 = exports.i16 = exports.ui8 = exports.i8 = exports.b7 = exports.b6 = exports.b5 = exports.b4 = exports.b3 = exports.b2 = exports.b1 = exports.Variable = exports.Byte = exports.IByteField = exports.Struct = exports.IStructField = exports.List = exports.Bit = exports.String = exports.Primitive = exports.Pointer = void 0;
+exports.t_void = exports.sui8 = exports.sui32 = exports.sui16 = exports.bui64 = exports.bi64 = exports.bui32 = exports.bi32 = exports.bui16 = exports.bi16 = exports.ui64 = exports.i64 = exports.ui32 = exports.i32 = exports.ui16 = exports.i16 = exports.ui8 = exports.i8 = exports.b7 = exports.b6 = exports.b5 = exports.b4 = exports.b3 = exports.b2 = exports.b1 = exports.Variable = exports.ByteArr = exports.Byte = exports.IByteField = exports.Struct = exports.IStructField = exports.List = exports.Bit = exports.String = exports.Primitive = exports.Pointer = void 0;
 // This line is needed to use buffer for example in a react native app
 // comment out this line if not needed
 var buffer_1 = require("buffer/");
@@ -343,7 +356,7 @@ var IByteField = /** @class */ (function () {
 }());
 exports.IByteField = IByteField;
 // Represents a byte or bytes in memory record
-// upto 8 bytes can be represented using `Byte`, this depends on the type passed to the define function
+// 1 byte can be represented using `Byte`, this depends on the type passed to the define function
 var Byte = /** @class */ (function () {
     function Byte(bits, type, name) {
         this.size = 0;
@@ -358,11 +371,6 @@ var Byte = /** @class */ (function () {
     }
     Byte.define = function (bits, type, name) {
         if (name === void 0) { name = ""; }
-        if (typeof bits === "number") {
-            if (type.size !== bits / 8)
-                throw new Error("Too many bits for " + type.size + " byte(s)");
-            bits = new Array(bits).fill(0).map(function (v, i) { return ["" + i, exports.b1]; });
-        }
         return new Byte(bits, type, name);
     };
     Byte.prototype.addBits = function (bits) {
@@ -425,6 +433,33 @@ var Byte = /** @class */ (function () {
     return Byte;
 }());
 exports.Byte = Byte;
+// Represents an array of bits in memory record
+// upto 8 bytes can be represented using `Byte`, this depends on the type passed to the define function
+//@ts-ignore
+var ByteArr = /** @class */ (function (_super) {
+    __extends(ByteArr, _super);
+    function ByteArr(bits, type, name) {
+        if (name === void 0) { name = ""; }
+        return _super.call(this, bits, type, name) || this;
+    }
+    ByteArr.define = function (bits, type, name) {
+        if (name === void 0) { name = ""; }
+        if (type.size !== bits / 8)
+            throw new Error("Too many bits for " + type.size + " byte(s)");
+        return new ByteArr(new Array(bits).fill(0).map(function (v, i) { return ["" + i, exports.b1]; }), type, name);
+    };
+    ByteArr.prototype.unpack = function (p) {
+        return Object.values(_super.prototype.unpack.call(this, p));
+    };
+    ByteArr.prototype.pack = function (p, data) {
+        _super.prototype.pack.call(this, p, data.reduce(function (a, c, i) {
+            a["" + i] = c;
+            return a;
+        }, {}));
+    };
+    return ByteArr;
+}(Byte));
+exports.ByteArr = ByteArr;
 // ## Variable
 //
 // Represents a variable that has a `Struct` type association with a `Pointer` to a memory location.
