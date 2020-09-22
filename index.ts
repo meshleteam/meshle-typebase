@@ -121,7 +121,6 @@
 // This line is needed to use buffer for example in a react native app
 // comment out this line if not needed
 import { Buffer } from "buffer/";
-import { isNumber } from "util";
 
 // ## Pointer
 //

@@ -19,9 +19,11 @@
     "url": "https://github.com/jfamousket/meshle-typebase"
   },
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "docs": "rm -rf docs && docco --output ./docs --layout linear index.ts",
     "build": "tsc index.ts",
+    "build:types": "tsc --emitDeclarationOnly",
     "prepublish": "yarn build"
   },
   "devDependencies": {
