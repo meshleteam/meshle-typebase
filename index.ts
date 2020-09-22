@@ -121,7 +121,6 @@
 // This line is needed to use buffer for example in a react native app
 // comment out this line if not needed
 import { Buffer } from "buffer/";
-import { isNumber } from "util";
 
 // ## Pointer
 //
@@ -155,7 +154,7 @@ export class Pointer {
 export interface IType {
   size: number;
   name: string; // Optional.
-  pack(p: Pointer, data: any);
+  pack(p: Pointer, data: any): void;
   unpack(p: Pointer, length?: number): any;
 }
 
@@ -181,10 +180,10 @@ export class Primitive implements IType {
   }
 
   size = 0;
-  name: string;
+  name!: string;
 
-  onPack: (value, offset) => void;
-  onUnpack: (offset: number) => any;
+  onPack!: (value: any, offset: number) => void;
+  onUnpack!: (offset: number) => any;
 
   pack(p: Pointer, value: any) {
     this.onPack.call(p.buf, value, p.off);
@@ -233,16 +232,21 @@ export class String implements IType {
 
   size = 0;
   encoding: encoding = "utf8";
-  name: string;
+  name!: string;
 
+  //@ts-ignore
   onPack: (value, offset) => void;
+
+  //@ts-ignore
   onUnpack: (offset: number) => any;
 
   pack(p: Pointer, value: any) {
+    //@ts-ignore
     this.onPack.call(p.buf, value, p.off, this.size, this.encoding);
   }
 
   unpack(p: Pointer): any {
+    //@ts-ignore
     return this.onUnpack.call(p.buf, this.encoding, p.off, p.off + this.size);
   }
 }
@@ -274,9 +278,9 @@ export class List implements IType {
   }
 
   size = 0;
-  name: string;
+  name!: string;
 
-  type: IType;
+  type!: IType;
 
   /* If 0, means we don't know the exact size of our array,
        think char[]* for example to represent string. */
@@ -312,9 +316,9 @@ export class List implements IType {
 
 // Each `IType` inside a `Struct` gets decorated with the `IStructField` object.
 export class IStructField {
-  type: IType;
-  offset: number;
-  name: string;
+  type!: IType;
+  offset!: number;
+  name!: string;
 }
 
 export type IFieldDefinition = [string, IType] | Struct;
@@ -389,9 +393,9 @@ export class Struct implements IType {
 
 // Each `Bit` inside a `Byte` gets decorated with the `IByteField` object.
 export class IByteField {
-  type: Bit;
-  offset: number;
-  name: string;
+  type!: Bit;
+  offset!: number;
+  name!: string;
 }
 
 export type IBitDefinition = [string, Bit] | Byte;
@@ -530,7 +534,7 @@ export class Variable {
     this.type.pack(this.pointer, data);
   }
 
-  unpack(length?): any {
+  unpack(length?: number): any {
     return this.type.unpack(this.pointer, length);
   }
 

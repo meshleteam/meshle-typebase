@@ -210,9 +210,11 @@ var String = /** @class */ (function () {
         return field;
     };
     String.prototype.pack = function (p, value) {
+        //@ts-ignore
         this.onPack.call(p.buf, value, p.off, this.size, this.encoding);
     };
     String.prototype.unpack = function (p) {
+        //@ts-ignore
         return this.onUnpack.call(p.buf, this.encoding, p.off, p.off + this.size);
     };
     return String;
