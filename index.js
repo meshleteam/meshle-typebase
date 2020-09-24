@@ -451,11 +451,20 @@ var ByteArr = /** @class */ (function (_super) {
     ByteArr.prototype.unpack = function (p) {
         return Object.values(_super.prototype.unpack.call(this, p)).reverse();
     };
+    ByteArr.prototype.getArr = function (data) {
+        var p = new Pointer(new buffer_1.Buffer(this.type.size), 0);
+        var v = new Variable(this.type, p);
+        v.pack(data);
+        return this.unpack(p);
+    };
     ByteArr.prototype.pack = function (p, data) {
-        _super.prototype.pack.call(this, p, data.reverse().reduce(function (a, c, i) {
+        if (!(data instanceof Array))
+            data = this.getArr(data);
+        data = data.reverse().reduce(function (a, c, i) {
             a["" + i] = c;
             return a;
-        }, {}));
+        }, {});
+        _super.prototype.pack.call(this, p, data);
     };
     return ByteArr;
 }(Byte));

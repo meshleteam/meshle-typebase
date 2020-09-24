@@ -9,6 +9,7 @@ const {
   ui16,
   b2,
   sui16,
+  ByteArr,
 } = require("../index.js");
 const Buffer = require("buffer/").Buffer;
 
@@ -27,7 +28,7 @@ const Status = Byte.define(
 );
 
 const header = Struct.define([
-  ["type", ui8],
+  ["type", ByteArr.define(8, ui8)],
   ["status", Status],
 ]);
 
@@ -48,7 +49,7 @@ const status = {
   playerState: 0,
 };
 const test = {
-  type: 0,
+  type: 11,
   status,
   strTest: "VP",
   host: 128,

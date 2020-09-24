@@ -502,14 +502,20 @@ export class ByteArr extends Byte {
     return Object.values(super.unpack(p)).reverse();
   }
 
-  pack(p: Pointer, data: Array<any>) {
-    super.pack(
-      p,
-      data.reverse().reduce((a, c, i) => {
-        a[`${i}`] = c;
-        return a;
-      }, {})
-    );
+  getArr(data: number) {
+    const p = new Pointer(new Buffer(this.type.size), 0);
+    const v = new Variable(this.type, p);
+    v.pack(data);
+    return this.unpack(p);
+  }
+
+  pack(p: Pointer, data: Array<any> | number) {
+    if (!(data instanceof Array)) data = this.getArr(data);
+    data = data.reverse().reduce((a, c, i) => {
+      a[`${i}`] = c;
+      return a;
+    }, {});
+    super.pack(p, data);
   }
 }
 

@@ -22,7 +22,8 @@
   "types": "index.d.ts",
   "scripts": {
     "docs": "rm -rf docs && docco --output ./docs --layout linear index.ts",
-    "build": "tsc index.ts",
+    "build:js": "tsc index.ts",
+    "build": "yarn build:types && yarn build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "prepublish": "yarn build"
   },
