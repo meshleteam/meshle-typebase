@@ -460,7 +460,11 @@ var ByteArr = /** @class */ (function (_super) {
     ByteArr.prototype.pack = function (p, data) {
         if (!(data instanceof Array))
             data = this.getArr(data);
-        data = data.reverse().reduce(function (a, c, i) {
+        data = new Array(this.type.size * 8)
+            .fill(0)
+            .map(function (v, i) { return data[i] || v; })
+            .reverse()
+            .reduce(function (a, c, i) {
             a["" + i] = c;
             return a;
         }, {});

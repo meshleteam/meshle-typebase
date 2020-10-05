@@ -511,10 +511,14 @@ export class ByteArr extends Byte {
 
   pack(p: Pointer, data: Array<any> | number) {
     if (!(data instanceof Array)) data = this.getArr(data);
-    data = data.reverse().reduce((a, c, i) => {
-      a[`${i}`] = c;
-      return a;
-    }, {});
+    data = new Array(this.type.size * 8)
+      .fill(0)
+      .map((v, i) => data[i] || v)
+      .reverse()
+      .reduce((a, c, i) => {
+        a[`${i}`] = c;
+        return a;
+      }, {});
     super.pack(p, data);
   }
 }
