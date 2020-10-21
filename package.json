@@ -1,7 +1,7 @@
 {
   "name": "@meshleteam/meshle-typebase",
   "description": "Package and unpackage binary structs",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "keywords": [
     "struct",
     "type",
@@ -33,5 +33,7 @@
   "dependencies": {
     "buffer": "^5.5.0"
   },
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  }
 }
