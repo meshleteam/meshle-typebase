@@ -2,14 +2,14 @@
 
 Original fork of [streamich/typebase](https://github.com/streamich/typebase#readme)
 
-Read `docco` docs at [here](https://jfamousket.github.io/meshle-typebase/).
+Read `docco` docs at [here](https://meshleteam.github.io/meshle-typebase/).
 
 ```
-npm install https://github.com/jfamousket/meshle-typebase
+npm install @meshleteam/meshle-typebase
 ```
 
 ```
-yarn add https://github.com/jfamousket/meshle-typebase
+yarn add @meshleteam/meshle-typebase
 ```
 
 Consider a `C/C++` structure:
