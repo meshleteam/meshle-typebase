@@ -8,7 +8,9 @@
 // ```c
 // typedef struct address {
 //     int port,
+//     int host,
 //     unsigned char ip[4],
+//     int status,
 // }
 // ```
 //
@@ -16,9 +18,24 @@
 //
 // ```js
 // var t = require('typebase');
+// var Status = t.Bytes.define(
+//   [
+//     ["powerOn", t.b1],
+//     ["timerEnabled", t.b1],
+//     ["errorFlag", t.b1],
+//     ["presenceSensor", t.b1],
+//     ["geoData", t.b1],
+//     ["deviceTime", t.b1],
+//     ["playerState", t.b7],
+//   ],
+//   t.ui16,
+//   "status"
+// );
 // var address = t.Struct.define([
 //     ['port', t.i32],
-//     ['ip', t.List.define(t.ui8, 4)]
+//     ["host", t.ui8],
+//     ['ip', t.List.define(t.ui8, 4)],
+//     ["status", Status],
 // ]);
 // ```
 //
@@ -27,15 +44,26 @@
 // a tuple of `Buffer` and a `number` offset in the buffer:
 //
 // ```js
-// var p = new t.Pointer(new Buffer(100), 0);
+// var p = new t.Pointer(new Buffer(address.size), 0);
 // ```
 //
 // Finally, you can pack your data into the `Buffer` specified by the pointer `p`:
 //
 // ```js
+// var status = {
+//   powerOn: 1,
+//   timerEnabled: 1,
+//   errorFlag: 1,
+//   presenceSensor: 1,
+//   geoData: 1,
+//   deviceTime: 0,
+//   playerState: 100,
+// };
 // var host = {
 //     port: 8080,
-//     ip: [127, 0, 0, 1]
+//     host: 128,
+//     ip: [127, 0, 0, 1],
+//     status
 // };
 // address.pack(p, host);
 // ```
@@ -88,7 +116,9 @@
 // v.cast(address_and_protocol);
 // v.pack({
 //     port: 8080,
+//     host: 128,
 //     ip: [127, 0, 0, 1],
+//     status,
 //     protocol: 4
 // });
 // ```

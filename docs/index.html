@@ -19,22 +19,50 @@
 <p>Let’s jump straight into example. Consider the following <code>C/C++</code> <em>stuct</em>:</p>
 <pre><code class="language-c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">address</span> {</span>
     <span class="hljs-keyword">int</span> port,
+    <span class="hljs-keyword">int</span> host,
     <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> ip[<span class="hljs-number">4</span>],
+    <span class="hljs-keyword">int</span> status,
 }</code></pre>
 <p>You can represent it using <code>typebase</code> like so:</p>
 <pre><code class="language-js"><span class="hljs-keyword">var</span> t = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;typebase&#x27;</span>);
+<span class="hljs-keyword">var</span> Status = t.Bytes.define(
+  [
+    [<span class="hljs-string">&quot;powerOn&quot;</span>, t.b1],
+    [<span class="hljs-string">&quot;timerEnabled&quot;</span>, t.b1],
+    [<span class="hljs-string">&quot;errorFlag&quot;</span>, t.b1],
+    [<span class="hljs-string">&quot;presenceSensor&quot;</span>, t.b1],
+    [<span class="hljs-string">&quot;geoData&quot;</span>, t.b1],
+    [<span class="hljs-string">&quot;deviceTime&quot;</span>, t.b1],
+    [<span class="hljs-string">&quot;playerState&quot;</span>, t.b7],
+  ],
+  t.ui16,
+  <span class="hljs-string">&quot;status&quot;</span>
+);
 <span class="hljs-keyword">var</span> address = t.Struct.define([
     [<span class="hljs-string">&#x27;port&#x27;</span>, t.i32],
-    [<span class="hljs-string">&#x27;ip&#x27;</span>, t.List.define(t.ui8, <span class="hljs-number">4</span>)]
+    [<span class="hljs-string">&quot;host&quot;</span>, t.ui8],
+    [<span class="hljs-string">&#x27;ip&#x27;</span>, t.List.define(t.ui8, <span class="hljs-number">4</span>)],
+    [<span class="hljs-string">&quot;status&quot;</span>, Status],
 ]);</code></pre>
 <p>You can use your <code>address</code> <em>struct</em> to pack binary data into <code>Buffer</code>. But, first
 we create a <em>pointer</em> to memory where data will be located. <code>Pointer</code> is defined as
 a tuple of <code>Buffer</code> and a <code>number</code> offset in the buffer:</p>
-<pre><code class="language-js"><span class="hljs-keyword">var</span> p = <span class="hljs-keyword">new</span> t.Pointer(<span class="hljs-keyword">new</span> Buffer(<span class="hljs-number">100</span>), <span class="hljs-number">0</span>);</code></pre>
+<pre><code class="language-js"><span class="hljs-keyword">var</span> p = <span class="hljs-keyword">new</span> t.Pointer(<span class="hljs-keyword">new</span> Buffer(address.size), <span class="hljs-number">0</span>);</code></pre>
 <p>Finally, you can pack your data into the <code>Buffer</code> specified by the pointer <code>p</code>:</p>
-<pre><code class="language-js"><span class="hljs-keyword">var</span> host = {
+<pre><code class="language-js"><span class="hljs-keyword">var</span> status = {
+  <span class="hljs-attr">powerOn</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">timerEnabled</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">errorFlag</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">presenceSensor</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">geoData</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">deviceTime</span>: <span class="hljs-number">0</span>,
+  <span class="hljs-attr">playerState</span>: <span class="hljs-number">100</span>,
+};
+<span class="hljs-keyword">var</span> host = {
     <span class="hljs-attr">port</span>: <span class="hljs-number">8080</span>,
-    <span class="hljs-attr">ip</span>: [<span class="hljs-number">127</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>]
+    <span class="hljs-attr">host</span>: <span class="hljs-number">128</span>,
+    <span class="hljs-attr">ip</span>: [<span class="hljs-number">127</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>],
+    status
 };
 address.pack(p, host);</code></pre>
 <p>And unpack it back:</p>
@@ -63,7 +91,9 @@ v.pack(host);
 <pre><code class="language-js">v.cast(address_and_protocol);
 v.pack({
     <span class="hljs-attr">port</span>: <span class="hljs-number">8080</span>,
+    <span class="hljs-attr">host</span>: <span class="hljs-number">128</span>,
     <span class="hljs-attr">ip</span>: [<span class="hljs-number">127</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>],
+    status,
     <span class="hljs-attr">protocol</span>: <span class="hljs-number">4</span>
 });</code></pre>
 <p>When you pack and unpack <code>Variable</code>s, you don’t need to do it for the whole <code>Variable</code> at once, instead
