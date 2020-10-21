@@ -1,5 +1,5 @@
 {
-  "name": "@jfamousket/meshle-typebase",
+  "name": "@meshleteam/meshle-typebase",
   "description": "Package and unpackage binary structs",
   "version": "0.5.9",
   "keywords": [
@@ -16,7 +16,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com:jfamousket/meshle-typebase.git"
+    "url": "git://github.com:meshleteam/meshle-typebase.git"
   },
   "main": "index.js",
   "types": "index.d.ts",
