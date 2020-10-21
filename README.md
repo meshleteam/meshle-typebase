@@ -1,6 +1,6 @@
 # `struct` for Node.js
 
-Original Fork of [streamich/typebase](https://github.com/streamich/typebase#readme)
+Original fork of [streamich/typebase](https://github.com/streamich/typebase#readme)
 
 Read `docco` docs at [here](https://jfamousket.github.io/meshle-typebase/).
 
@@ -18,43 +18,31 @@ Consider a `C/C++` structure:
 struct address {
     ...
     int port,
+    int host,
     unsigned char ip[4],
+    int status,
 }
 ```
 
-Define the same binary `struct` in JavaScript and pack/unpack data to `Buffer`:
+Lets say the 2 `bytes` for your status had specific values for different `bit` positions
 
 ```js
-const {
-  List,
-  Struct,
-  Bytes,
-  ui8,
-  b1,
-  b7,
-  Pointer,
-  ui16
-} = require("../typebase.js");
+const t = require("../typebase.js");
 
-const Status = Bytes.define(
+const Status = t.Bytes.define(
   [
-    ["powerOn", b1],
-    ["timerEnabled", b1],
-    ["errorFlag", b1],
-    ["presenceSensor", b1],
-    ["geoData", b1],
-    ["deviceTime", b1],
-    ["playerState", b7]
+    ["powerOn", t.b1],
+    ["timerEnabled", t.b1],
+    ["errorFlag", t.b1],
+    ["presenceSensor", t.b1],
+    ["geoData", t.b1],
+    ["deviceTime", t.b1],
+    ["playerState", t.b7],
   ],
-  ui16,
+  t.ui16,
   "status"
 );
 
-const Test = Struct.define([
-  ["status", Status],
-  ["host", ui8],
-  ["ip", List.define(ui8, 4)]
-]);
 const status = {
   powerOn: 1,
   timerEnabled: 1,
@@ -62,17 +50,30 @@ const status = {
   presenceSensor: 1,
   geoData: 1,
   deviceTime: 0,
-  playerState: 100
+  playerState: 100,
 };
-const test = {
-  status,
+```
+
+Define the same binary `struct` in JavaScript and pack/unpack data to `Buffer`:
+
+```js
+const address = t.Struct.define([
+  ["port", t.ui8],
+  ["host", t.ui8],
+  ["ip", t.List.define(t.ui8, 4)],
+  ["status", Status],
+]);
+
+const host = {
+  port: 8080,
   host: 128,
-  ip: [127, 0, 0, 1]
+  ip: [127, 0, 0, 1],
+  status,
 };
 
-const p = new Pointer(new Buffer(Test.size), 0);
-Test.pack(p, test);
-const unpacked = Test.unpack(p);
+const pointer = new t.Pointer(new Buffer(address.size), 0);
+address.pack(pointer, host);
+const unpacked = address.unpack(pointer);
 
-console.log({ p, unpacked });
+console.log({ pointer, unpacked });
 ```
