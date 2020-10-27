@@ -339,7 +339,7 @@ var Struct = /** @class */ (function () {
             if (field instanceof Struct) {
                 var parent = field;
                 var parentfields = parent.fields.map(function (field) {
-                    return [field.type, field.name];
+                    return [field.name, field.type];
                 });
                 this.addFields(parentfields);
                 continue;

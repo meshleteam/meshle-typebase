@@ -376,7 +376,7 @@ export class Struct implements IType {
       if (field instanceof Struct) {
         var parent = field as Struct;
         var parentfields = parent.fields.map(function (field: IStructField) {
-          return [field.type, field.name];
+          return [field.name, field.type];
         });
         this.addFields(parentfields as [string, IType][]);
         continue;
