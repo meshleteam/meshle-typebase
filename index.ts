@@ -160,10 +160,10 @@ if (typeof process !== "object") {
 // where `Buffer` or `ArrayBuffer` objects server as a starting point and offset is a number representing an offset
 // within the buffer in bytes.
 export class Pointer {
-  buf: Buffer;
+  buf: _Buffer;
   off: number; /* offset */
 
-  constructor(buf: Buffer, offset: number = 0) {
+  constructor(buf: _Buffer, offset: number = 0) {
     this.buf = buf;
     this.off = offset;
   }
