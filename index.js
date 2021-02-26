@@ -1,153 +1,4 @@
 "use strict";
-// # Typebase
-//
-// [typebase](https://github.com/jfamousket/meshle-typebase) provides C-like Types, Structs and Pointers for JavaScript.
-//
-// Let's jump straight into example. Consider the following `C/C++` *stuct*:
-//
-// ```c
-// typedef struct address {
-//     int port,
-//     int host,
-//     unsigned char ip[4],
-//     int status,
-// }
-// ```
-//
-// You can represent it using `typebase` like so:
-//
-// ```js
-// var t = require('typebase');
-// var Status = t.Bytes.define(
-//   [
-//     ["powerOn", t.b1],
-//     ["timerEnabled", t.b1],
-//     ["errorFlag", t.b1],
-//     ["presenceSensor", t.b1],
-//     ["geoData", t.b1],
-//     ["deviceTime", t.b1],
-//     ["playerState", t.b7],
-//   ],
-//   t.ui16,
-//   "status"
-// );
-// var address = t.Struct.define([
-//     ['port', t.i32],
-//     ["host", t.ui8],
-//     ['ip', t.List.define(t.ui8, 4)],
-//     ["status", Status],
-// ]);
-// ```
-//
-// You can use your `address` *struct* to pack binary data into `Buffer`. But, first
-// we create a *pointer* to memory where data will be located. `Pointer` is defined as
-// a tuple of `Buffer` and a `number` offset in the buffer:
-//
-// ```js
-// var p = new t.Pointer(new Buffer(address.size), 0);
-// ```
-//
-// Finally, you can pack your data into the `Buffer` specified by the pointer `p`:
-//
-// ```js
-// var status = {
-//   powerOn: 1,
-//   timerEnabled: 1,
-//   errorFlag: 1,
-//   presenceSensor: 1,
-//   geoData: 1,
-//   deviceTime: 0,
-//   playerState: 100,
-// };
-// var host = {
-//     port: 8080,
-//     host: 128,
-//     ip: [127, 0, 0, 1],
-//     status
-// };
-// address.pack(p, host);
-// ```
-//
-// And unpack it back:
-//
-// ```js
-// var unpacked = address.unpack(p);
-// ```
-//
-// Or use `Variable` object to do the same thing:
-//
-// ```js
-// var v = new t.Variable(address, p);
-// v.pack(host);
-// var unpacked = v.unpack();
-// ```
-//
-// Now let's say you want to *"extend"* your C struct with a `protocol` field:
-//
-// ```c
-// typedef struct address_and_protocol {
-//     int port,
-//     unsigned char ip[4],
-//     int protocol,
-// }
-// ```
-//
-// In *C11* you can actually do it like this:
-//
-// ```c
-// typedef struct address_and_protocol {
-//     struct address,
-//     int protocol,
-// }
-// ```
-//
-// `typebase` also allows you to "extend" `Struct`s:
-//
-// ```js
-// var address_and_protocol = t.Struct.define([
-//     address,
-//     ['protocol', t.i32]
-// ]);
-// ```
-//
-// Now you can *"cast"* your `Variable` to the new type and write data to it:
-//
-// ```js
-// v.cast(address_and_protocol);
-// v.pack({
-//     port: 8080,
-//     host: 128,
-//     ip: [127, 0, 0, 1],
-//     status,
-//     protocol: 4
-// });
-// ```
-//
-// When you pack and unpack `Variable`s, you don't need to do it for the whole `Variable` at once, instead
-// you can just pick the field you need:
-//
-// ```js
-// v.get('ip').pack([192, 168, 1, 100]);
-// console.log(v.get('ip').unpack());
-// ```
-//
-// One useful property all `typebase` types have is `size`, which is size of the type in bytes:
-//
-// ```js
-// console.log(address.size);
-// ```
-//
-// ## TL;DR
-//
-// `typbase` defines five basic building blocks: `Pointer`, `Primitive`, `List`, `Struct`, `Variable`.
-//
-// `Pointer` represents a location of data in memory, similar to `C/C++` pointers.
-//
-// `Primitive` is a basic data type that knows how to pack and unpack itself into `Buffer`. `Struct` is a structure
-// of data, similar to `struct` in C. `List` is an array of `Primitive`s, `Struct`s or other `List`s.
-//
-// And, finally, `Variable` is an object that has an **address in memory** represented by `Pointer` and a
-// **type** represented by one of `Primitive`, `List` or `Struct`.
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -161,28 +12,19 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.t_void = exports.sui8 = exports.sui32 = exports.sui16 = exports.bui64 = exports.bi64 = exports.bui32 = exports.bi32 = exports.bui16 = exports.bi16 = exports.ui64 = exports.i64 = exports.ui32 = exports.i32 = exports.ui16 = exports.i16 = exports.ui8 = exports.i8 = exports.b7 = exports.b6 = exports.b5 = exports.b4 = exports.b3 = exports.b2 = exports.b1 = exports.Variable = exports.ByteArr = exports.Byte = exports.IByteField = exports.Struct = exports.IStructField = exports.List = exports.Bit = exports.String = exports.Primitive = exports.Pointer = void 0;
 if (typeof process !== "object") {
-    // running in browser or react-native
     console.log("Running in browser");
     global.Buffer = require("buffer/").Buffer;
 }
-// ## Pointer
-//
-// We can find out a physical memory pointer of a `Buffer` or `ArrayBuffer` objects using [libsys](http://www.npmjs.com/package/libsys).
-// But we don't want to create a new buffer for every slice of memory we reference to, so we define a pointer as a tuple
-// where `Buffer` or `ArrayBuffer` objects server as a starting point and offset is a number representing an offset
-// within the buffer in bytes.
-var Pointer = /** @class */ (function () {
+var Pointer = (function () {
     function Pointer(buf, offset) {
         if (offset === void 0) { offset = 0; }
         this.buf = buf;
         this.off = offset;
     }
-    /* Return a copy of itself. */
     Pointer.prototype.clone = function () {
-        // return new Pointer(this.buf, this.off);
         return this.offset();
     };
     Pointer.prototype.offset = function (off) {
@@ -192,15 +34,10 @@ var Pointer = /** @class */ (function () {
     return Pointer;
 }());
 exports.Pointer = Pointer;
-// ### Primitive
-// `Primitive`s are the smallest, most basic data types like integers, chars and pointers on which CPU operates directly
-// and which know how to pack and unpack themselves into `Buffer`s.
-var Primitive = /** @class */ (function () {
+var Primitive = (function () {
     function Primitive() {
         this.size = 0;
     }
-    /* We do not define `offset` at construction because the
-         offset property is set by a parent Struct. */
     Primitive.define = function (size, onPack, onUnpack, name) {
         if (size === void 0) { size = 1; }
         if (onPack === void 0) { onPack = (function () { }); }
@@ -222,13 +59,11 @@ var Primitive = /** @class */ (function () {
     return Primitive;
 }());
 exports.Primitive = Primitive;
-var String = /** @class */ (function () {
+var String = (function () {
     function String() {
         this.size = 0;
         this.encoding = "utf8";
     }
-    /* We do not define `offset` at construction because the
-         offset property is set by a parent Struct. */
     String.define = function (encoding, type, onPack, onUnpack, name) {
         if (onPack === void 0) { onPack = (function () { }); }
         if (onUnpack === void 0) { onUnpack = (function () { }); }
@@ -250,14 +85,10 @@ var String = /** @class */ (function () {
     return String;
 }());
 exports.String = String;
-// ### Bit
-// A `Bit` is the smallest, most basic data type it can only be used inside `Bytes`
-var Bit = /** @class */ (function () {
+var Bit = (function () {
     function Bit() {
         this.size = 0;
     }
-    /* We do not define `offset` at construction because the
-         offset property is set by a parent Struct. */
     Bit.define = function (size) {
         if (size === void 0) { size = 1; }
         var bit = new Bit();
@@ -267,13 +98,9 @@ var Bit = /** @class */ (function () {
     return Bit;
 }());
 exports.Bit = Bit;
-// ### List
-// Array type, named `List` because `Array` is a reserved word in JavaScript.
-var List = /** @class */ (function () {
+var List = (function () {
     function List() {
         this.size = 0;
-        /* If 0, means we don't know the exact size of our array,
-             think char[]* for example to represent string. */
         this.length = 0;
     }
     List.define = function (type, length) {
@@ -287,7 +114,6 @@ var List = /** @class */ (function () {
     List.prototype.pack = function (p, values, length) {
         if (length === void 0) { length = this.length; }
         var valp = p.clone();
-        // This allows to provide simle `number`s where 64-bit `[number, number]` is required.
         if (!(values instanceof Array))
             values = [values];
         if (!length)
@@ -311,16 +137,13 @@ var List = /** @class */ (function () {
     return List;
 }());
 exports.List = List;
-// ### Struct
-// Each `IType` inside a `Struct` gets decorated with the `IStructField` object.
-var IStructField = /** @class */ (function () {
+var IStructField = (function () {
     function IStructField() {
     }
     return IStructField;
 }());
 exports.IStructField = IStructField;
-// Represents a structured memory record definition similar to that of `struct` in `C`.
-var Struct = /** @class */ (function () {
+var Struct = (function () {
     function Struct(fields, name) {
         this.size = 0;
         this.fields = [];
@@ -337,7 +160,6 @@ var Struct = /** @class */ (function () {
     Struct.prototype.addFields = function (fields) {
         for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
             var field = fields_1[_i];
-            /* Inherit properties from another struct */
             if (field instanceof Struct) {
                 var parent = field;
                 var parentfields = parent.fields.map(function (field) {
@@ -351,7 +173,7 @@ var Struct = /** @class */ (function () {
             var entry = {
                 type: struct,
                 offset: this.size,
-                name: name
+                name: name,
             };
             this.fields.push(entry);
             this.map[name] = entry;
@@ -379,17 +201,13 @@ var Struct = /** @class */ (function () {
     return Struct;
 }());
 exports.Struct = Struct;
-// ### Byte
-// Each `Bit` inside a `Byte` gets decorated with the `IByteField` object.
-var IByteField = /** @class */ (function () {
+var IByteField = (function () {
     function IByteField() {
     }
     return IByteField;
 }());
 exports.IByteField = IByteField;
-// Represents a byte or bytes in memory record
-// 1 byte can be represented using `Byte`, this depends on the type passed to the define function
-var Byte = /** @class */ (function () {
+var Byte = (function () {
     function Byte(bits, type, name) {
         this.size = 0;
         this.off = 0;
@@ -415,7 +233,7 @@ var Byte = /** @class */ (function () {
             var entry = {
                 type: bitType,
                 offset: this.off,
-                name: name
+                name: name,
             };
             this.bits.push(entry);
             this.map[name] = entry;
@@ -465,10 +283,7 @@ var Byte = /** @class */ (function () {
     return Byte;
 }());
 exports.Byte = Byte;
-// Represents an array of bits in memory record
-// upto 8 bytes can be represented using `Byte`, this depends on the type passed to the define function
-//@ts-ignore
-var ByteArr = /** @class */ (function (_super) {
+var ByteArr = (function (_super) {
     __extends(ByteArr, _super);
     function ByteArr(bits, type, name) {
         if (name === void 0) { name = ""; }
@@ -505,10 +320,7 @@ var ByteArr = /** @class */ (function (_super) {
     return ByteArr;
 }(Byte));
 exports.ByteArr = ByteArr;
-// ## Variable
-//
-// Represents a variable that has a `Struct` type association with a `Pointer` to a memory location.
-var Variable = /** @class */ (function () {
+var Variable = (function () {
     function Variable(type, pointer) {
         this.type = type;
         this.pointer = pointer;
@@ -534,9 +346,6 @@ var Variable = /** @class */ (function () {
     return Variable;
 }());
 exports.Variable = Variable;
-// ## Basic Types
-//
-// Define basic types and export as part of the library.
 var bp = Buffer.prototype || Buffer.from([]);
 exports.b1 = Bit.define(1);
 exports.b2 = Bit.define(2);
@@ -562,4 +371,4 @@ exports.bui64 = List.define(exports.bui32, 2);
 exports.sui16 = String.define("utf8", exports.ui16, bp.write, bp.toString);
 exports.sui32 = String.define("utf8", exports.ui32, bp.write, bp.toString);
 exports.sui8 = String.define("utf8", exports.ui8, bp.write, bp.toString);
-exports.t_void = Primitive.define(0); // `0` means variable length, like `void*`.
+exports.t_void = Primitive.define(0);

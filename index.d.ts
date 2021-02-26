@@ -1,8 +1,7 @@
-/// <reference types="node" />
 export declare class Pointer {
-    buf: Buffer;
+    buf: _Buffer;
     off: number;
-    constructor(buf: Buffer, offset?: number);
+    constructor(buf: _Buffer, offset?: number);
     clone(): Pointer;
     offset(off?: number): Pointer;
 }
