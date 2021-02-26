@@ -163,9 +163,11 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 exports.t_void = exports.sui8 = exports.sui32 = exports.sui16 = exports.bui64 = exports.bi64 = exports.bui32 = exports.bi32 = exports.bui16 = exports.bi16 = exports.ui64 = exports.i64 = exports.ui32 = exports.i32 = exports.ui16 = exports.i16 = exports.ui8 = exports.i8 = exports.b7 = exports.b6 = exports.b5 = exports.b4 = exports.b3 = exports.b2 = exports.b1 = exports.Variable = exports.ByteArr = exports.Byte = exports.IByteField = exports.Struct = exports.IStructField = exports.List = exports.Bit = exports.String = exports.Primitive = exports.Pointer = void 0;
-// This line is needed to use buffer for example in a react native app
-// comment out this line if not needed
-var buffer_1 = require("buffer/");
+if (typeof process !== "object") {
+    // running in browser or react-native
+    console.log("Running in browser");
+    global.Buffer = require("buffer/").Buffer;
+}
 // ## Pointer
 //
 // We can find out a physical memory pointer of a `Buffer` or `ArrayBuffer` objects using [libsys](http://www.npmjs.com/package/libsys).
@@ -482,7 +484,7 @@ var ByteArr = /** @class */ (function (_super) {
         return Object.values(_super.prototype.unpack.call(this, p)).reverse();
     };
     ByteArr.prototype.getArr = function (data) {
-        var p = new Pointer(new buffer_1.Buffer(this.type.size), 0);
+        var p = new Pointer(new Buffer(this.type.size), 0);
         var v = new Variable(this.type, p);
         v.pack(data);
         return this.unpack(p);
@@ -535,7 +537,7 @@ exports.Variable = Variable;
 // ## Basic Types
 //
 // Define basic types and export as part of the library.
-var bp = buffer_1.Buffer.prototype;
+var bp = Buffer.prototype || Buffer.from([]);
 exports.b1 = Bit.define(1);
 exports.b2 = Bit.define(2);
 exports.b3 = Bit.define(3);

@@ -27,13 +27,16 @@ const Status = Byte.define(
   "status"
 );
 
-const header = Struct.define([
+const Type = Struct.define([
   ["type", ByteArr.define(8, ui8)],
+]) 
+const Header = Struct.define([
+  Type,
   ["status", Status],
 ]);
 
 const Test = Struct.define([
-  ...header.fieldsDefinition,
+  Header,
   ["strTest", sui16],
   ["host", ui16],
   ["ip", List.define(ui8, 4)],
@@ -61,4 +64,4 @@ const v = new Variable(Test, p);
 v.pack(test);
 const unpacked = v.unpack(p);
 
-console.log({ p, unpacked });
+console.log({ buffer: p.buf, unpacked });

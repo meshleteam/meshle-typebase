@@ -148,10 +148,11 @@
 // And, finally, `Variable` is an object that has an **address in memory** represented by `Pointer` and a
 // **type** represented by one of `Primitive`, `List` or `Struct`.
 
-// This line is needed to use buffer for example in a react native app
-// comment out this line if not needed
-import { Buffer } from "buffer/";
-
+if (typeof process !== "object") {
+  // running in browser or react-native
+  console.log("Running in browser");
+  global.Buffer = require("buffer/").Buffer;
+}
 // ## Pointer
 //
 // We can find out a physical memory pointer of a `Buffer` or `ArrayBuffer` objects using [libsys](http://www.npmjs.com/package/libsys).
@@ -591,7 +592,7 @@ export class Variable {
 // ## Basic Types
 //
 // Define basic types and export as part of the library.
-var bp = Buffer.prototype;
+var bp = Buffer.prototype || Buffer.from([]);
 export var b1 = Bit.define(1);
 export var b2 = Bit.define(2);
 export var b3 = Bit.define(3);

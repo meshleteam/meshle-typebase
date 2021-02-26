@@ -1,4 +1,4 @@
-import { Buffer } from "buffer/";
+/// <reference types="node" />
 export declare class Pointer {
     buf: Buffer;
     off: number;
